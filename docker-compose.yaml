@@ -1,0 +1,46 @@
+version: '3'
+
+networks:
+  httpmq-go-test:
+    driver: bridge
+
+services:
+  nats:
+    image: nats:2.6.2
+    hostname: dev-nats
+    expose:
+      - 4222
+    networks:
+      - httpmq-go-test
+    volumes:
+      - ./docker/test_nats.conf:/nats-server.conf
+
+  httpmq-mgmt:
+    image: alwitt/httpmq:0.1.1
+    hostname: management
+    command:
+      - management
+      - --management-server-port
+      - "3000"
+    ports:
+      - 127.0.0.1:4000:3000
+    networks:
+      - httpmq-go-test
+    environment:
+      LOG_LEVEL: info
+      NATS_SERVER_URI: nats://dev-nats:4222
+
+  httpmq-data:
+    image: alwitt/httpmq:0.1.1
+    hostname: dataplane
+    command:
+      - dataplane
+      - --dataplane-server-port
+      - "3001"
+    ports:
+      - 127.0.0.1:4001:3001
+    networks:
+      - httpmq-go-test
+    environment:
+      LOG_LEVEL: info
+      NATS_SERVER_URI: nats://dev-nats:4222
