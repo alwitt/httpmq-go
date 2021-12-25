@@ -90,6 +90,60 @@ type MgmtAPIWrapper interface {
 		         an error message if request failed
 	*/
 	DeleteStream(ctxt context.Context, stream string) (string, error)
+
+	// --------------------------------------------------------------------------------
+	// Consumer related API functions
+
+	/*
+		CreateConsumerForStream define a new consumer on a stream
+
+		 @param ctxt context.Context - the caller context
+		 @param stream string - the stream to create the consumer on
+		 @param params api.ManagementJetStreamConsumerParam - consumer parameters
+		 @return request ID (to reference logs)
+		         an error message if request failed
+	*/
+	CreateConsumerForStream(
+		ctxt context.Context, stream string, params api.ManagementJetStreamConsumerParam,
+	) (string, error)
+
+	/*
+		ListAllConsumerOfStream query for list of all known consumers on a stream
+
+		 @param ctxt context.Context - the caller context
+		 @param stream string - the stream to query for
+		 @return request ID (to reference logs)
+		         list of known consumer of a stream,
+		         or an error message if request failed
+	*/
+	ListAllConsumerOfStream(ctxt context.Context, stream string) (
+		string, map[string]api.ApisAPIRestRespConsumerInfo, error,
+	)
+
+	/*
+		GetConsumerOfStream query for a particular consumer on a stream
+
+		 @param ctxt context.Context - the caller context
+		 @param stream string - name of the stream
+		 @param consumer string - name of the consumer
+		 @return request ID (to reference logs)
+		         information on that consumer
+		         or an error message if request failed
+	*/
+	GetConsumerOfStream(ctxt context.Context, stream, consumer string) (
+		string, *api.ApisAPIRestRespConsumerInfo, error,
+	)
+
+	/*
+		DeleteConsumerOnStream delete a consumer on a stream
+
+		 @param ctxt context.Context - the caller context
+		 @param stream string - name of the stream
+		 @param consumer string - name of the consumer
+		 @return request ID (to reference logs)
+		         an error message if request failed
+	*/
+	DeleteConsumerOnStream(ctxt context.Context, stream, consumer string) (string, error)
 }
 
 // mgmtAPIWrapperImpl implements MgmtAPIWrapper
