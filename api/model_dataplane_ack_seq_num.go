@@ -17,16 +17,16 @@ import (
 // DataplaneAckSeqNum struct for DataplaneAckSeqNum
 type DataplaneAckSeqNum struct {
 	// Consumer is the JetStream message sequence number for this consumer
-	Consumer int32 `json:"consumer"`
+	Consumer int64 `json:"consumer"`
 	// Stream is the JetStream message sequence number for this stream
-	Stream int32 `json:"stream"`
+	Stream int64 `json:"stream"`
 }
 
 // NewDataplaneAckSeqNum instantiates a new DataplaneAckSeqNum object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewDataplaneAckSeqNum(consumer int32, stream int32) *DataplaneAckSeqNum {
+func NewDataplaneAckSeqNum(consumer int64, stream int64) *DataplaneAckSeqNum {
 	this := DataplaneAckSeqNum{}
 	this.Consumer = consumer
 	this.Stream = stream
@@ -42,9 +42,9 @@ func NewDataplaneAckSeqNumWithDefaults() *DataplaneAckSeqNum {
 }
 
 // GetConsumer returns the Consumer field value
-func (o *DataplaneAckSeqNum) GetConsumer() int32 {
+func (o *DataplaneAckSeqNum) GetConsumer() int64 {
 	if o == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 
@@ -53,7 +53,7 @@ func (o *DataplaneAckSeqNum) GetConsumer() int32 {
 
 // GetConsumerOk returns a tuple with the Consumer field value
 // and a boolean to check if the value has been set.
-func (o *DataplaneAckSeqNum) GetConsumerOk() (*int32, bool) {
+func (o *DataplaneAckSeqNum) GetConsumerOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -61,14 +61,14 @@ func (o *DataplaneAckSeqNum) GetConsumerOk() (*int32, bool) {
 }
 
 // SetConsumer sets field value
-func (o *DataplaneAckSeqNum) SetConsumer(v int32) {
+func (o *DataplaneAckSeqNum) SetConsumer(v int64) {
 	o.Consumer = v
 }
 
 // GetStream returns the Stream field value
-func (o *DataplaneAckSeqNum) GetStream() int32 {
+func (o *DataplaneAckSeqNum) GetStream() int64 {
 	if o == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 
@@ -77,7 +77,7 @@ func (o *DataplaneAckSeqNum) GetStream() int32 {
 
 // GetStreamOk returns a tuple with the Stream field value
 // and a boolean to check if the value has been set.
-func (o *DataplaneAckSeqNum) GetStreamOk() (*int32, bool) {
+func (o *DataplaneAckSeqNum) GetStreamOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -85,7 +85,7 @@ func (o *DataplaneAckSeqNum) GetStreamOk() (*int32, bool) {
 }
 
 // SetStream sets field value
-func (o *DataplaneAckSeqNum) SetStream(v int32) {
+func (o *DataplaneAckSeqNum) SetStream(v int64) {
 	o.Stream = v
 }
 
