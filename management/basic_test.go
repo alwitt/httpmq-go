@@ -14,7 +14,7 @@ func TestClientReadyCheck(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 
 	svrURL := common.GetUnitTestHttpmqMgmtAPIURL()
-	coreClient, err := common.DefineAPIClient(svrURL, true)
+	coreClient, err := common.DefineAPIClient(svrURL, nil, nil, true)
 	assert.Nil(err)
 
 	uut := GetMgmtAPIWrapper(coreClient)

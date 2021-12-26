@@ -15,7 +15,7 @@ func TestConsumerManagement(t *testing.T) {
 	assert := assert.New(t)
 
 	svrURL := common.GetUnitTestHttpmqMgmtAPIURL()
-	coreClient, err := common.DefineAPIClient(svrURL, true)
+	coreClient, err := common.DefineAPIClient(svrURL, nil, nil, true)
 	assert.Nil(err)
 
 	uut := GetMgmtAPIWrapper(coreClient)
@@ -136,7 +136,7 @@ func TestConsumerManagement(t *testing.T) {
 		assert.Equal(subject6, info.Config.GetFilterSubject())
 	}
 
-	// Case #: delete the consumer
+	// Case 8: delete the consumer
 	{
 		_, err := uut.DeleteConsumerOnStream(utCtxt, stream1, consumer2)
 		assert.Nil(err)
@@ -147,7 +147,7 @@ func TestConsumerManagement(t *testing.T) {
 		assert.Empty(allInfo)
 	}
 
-	// Case #: delete the stream
+	// Case 9: delete the stream
 	{
 		_, err := uut.DeleteStream(utCtxt, stream1)
 		assert.Nil(err)

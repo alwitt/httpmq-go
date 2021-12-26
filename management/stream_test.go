@@ -15,7 +15,7 @@ func TestStreamManagement(t *testing.T) {
 	assert := assert.New(t)
 
 	svrURL := common.GetUnitTestHttpmqMgmtAPIURL()
-	coreClient, err := common.DefineAPIClient(svrURL, true)
+	coreClient, err := common.DefineAPIClient(svrURL, nil, nil, true)
 	assert.Nil(err)
 
 	uut := GetMgmtAPIWrapper(coreClient)
