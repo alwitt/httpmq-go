@@ -158,9 +158,9 @@ Ready check whether the httpmq management API is ready
  @return whether the management API is ready, or an error message is given
 */
 func (c *mgmtAPIWrapperImpl) Ready(ctxt context.Context) error {
-	request := c.client.ManagementApi.ReadyGet(ctxt)
+	request := c.client.ManagementApi.V1AdminReadyGet(ctxt)
 
-	response, _, err := c.client.ManagementApi.ReadyGetExecute(request)
+	response, _, err := c.client.ManagementApi.V1AdminReadyGetExecute(request)
 	if err != nil {
 		return err
 	}

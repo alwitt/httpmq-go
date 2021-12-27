@@ -93,9 +93,9 @@ func TestPushSubscribe(t *testing.T) {
 			_, err := uut.SendACK(
 				utCtxt, MsgACKParam{
 					Stream:      stream0,
-					StreamSeq:   *rxMsg.Sequence.Stream,
+					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumer0,
-					ConsumerSeq: *rxMsg.Sequence.Consumer,
+					ConsumerSeq: rxMsg.Sequence.Consumer,
 				},
 			)
 			assert.Nil(err)
@@ -127,9 +127,9 @@ func TestPushSubscribe(t *testing.T) {
 			_, err := uut.SendACK(
 				utCtxt, MsgACKParam{
 					Stream:      stream0,
-					StreamSeq:   *rxMsg.Sequence.Stream,
+					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumer0,
-					ConsumerSeq: *rxMsg.Sequence.Consumer,
+					ConsumerSeq: rxMsg.Sequence.Consumer,
 				},
 			)
 			assert.Nil(err)
@@ -170,9 +170,9 @@ func TestPushSubscribe(t *testing.T) {
 			_, err := uut.SendACK(
 				utCtxt, MsgACKParam{
 					Stream:      stream0,
-					StreamSeq:   *rxMsg.Sequence.Stream,
+					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumerWildCard,
-					ConsumerSeq: *rxMsg.Sequence.Consumer,
+					ConsumerSeq: rxMsg.Sequence.Consumer,
 				},
 			)
 			assert.Nil(err)
@@ -190,9 +190,9 @@ func TestPushSubscribe(t *testing.T) {
 			_, err := uut.SendACK(
 				utCtxt, MsgACKParam{
 					Stream:      stream0,
-					StreamSeq:   *rxMsg.Sequence.Stream,
+					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumerWildCard,
-					ConsumerSeq: *rxMsg.Sequence.Consumer,
+					ConsumerSeq: rxMsg.Sequence.Consumer,
 				},
 			)
 			assert.Nil(err)
