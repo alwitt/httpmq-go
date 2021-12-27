@@ -78,11 +78,20 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 	// Because the push subscription is a expected to be a server-send-event stream, will
 	// have to directly operate the HTTP client
 
+	localBasePath, err := c.client.GetConfig().ServerURLWithContext(
+		ctxt, "DataplaneApiService.V1DataStreamStreamNameConsumerConsumerNameGet",
+	)
+	if err != nil {
+		return "", err
+	}
 	clientCfg := c.client.GetConfig()
 	httpClient := clientCfg.HTTPClient
 	// Assume there is only one target server
 	subscribeURL := fmt.Sprintf(
-		"%s/v1/data/stream/%s/consumer/%s", clientCfg.Servers[0].URL, params.Stream, params.Consumer,
+		"%s/v1/data/stream/%s/consumer/%s",
+		localBasePath,
+		url.PathEscape(params.Stream),
+		url.PathEscape(params.Consumer),
 	)
 
 	// Build the request
