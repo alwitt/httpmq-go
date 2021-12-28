@@ -1,0 +1,15 @@
+---
+nats:
+  server_uri: nats://dev-nats:4222
+
+management:
+  api_server:
+    server_config:
+      listen_on: 0.0.0.0
+      listen_port: 3000
+
+dataplane:
+  api_server:
+    server_config:
+      listen_on: 0.0.0.0
+      listen_port: 3000
