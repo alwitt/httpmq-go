@@ -3,6 +3,7 @@ package dataplane
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -28,6 +29,9 @@ func TestPushSubscribe(t *testing.T) {
 
 	utCtxt, utCtxtCancel := context.WithCancel(context.Background())
 	defer utCtxtCancel()
+
+	assert.Nil(ctrl.Ready(utCtxt))
+	assert.Nil(uut.Ready(utCtxt))
 
 	// Case 0: create a stream and consumer
 	stream0 := uuid.New().String()
@@ -76,7 +80,7 @@ func TestPushSubscribe(t *testing.T) {
 				MsgChan:        &msgChan1,
 			},
 		)
-		assert.Equal("context canceled", err.Error())
+		assert.True(strings.Contains(err.Error(), "context canceled"))
 	}()
 	// Verify messages are published
 	{
@@ -115,7 +119,7 @@ func TestPushSubscribe(t *testing.T) {
 				MsgChan:        &msgChan1,
 			},
 		)
-		assert.Equal("context canceled", err.Error())
+		assert.True(strings.Contains(err.Error(), "context canceled"))
 	}()
 	{
 		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second)
@@ -153,14 +157,14 @@ func TestPushSubscribe(t *testing.T) {
 				MsgChan:        &msgChan2,
 			},
 		)
-		assert.Equal("context canceled", err.Error())
+		assert.True(strings.Contains(err.Error(), "context canceled"))
 	}()
 	// Verify messages are published
 	{
 		msg1 := fmt.Sprintf("test-message-1.%s", uuid.New().String())
 		_, err := uut.Publish(utCtxt, subjects0[0], []byte(msg1))
 		assert.Nil(err)
-		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second)
+		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second*2)
 		defer lclCancel()
 		select {
 		case rxMsg, ok := <-msgChan2:

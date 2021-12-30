@@ -2,6 +2,7 @@ package dataplane
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
 )
@@ -36,6 +37,14 @@ type PushSubscribeParam struct {
 
 // DataAPIWrapper is a client wrapper object for operating the httpmq dataplane API
 type DataAPIWrapper interface {
+	/*
+		Ready check whether the httpmq dataplane API is ready
+
+		 @param ctxt context.Context - the caller context
+		 @return whether the dataplane API is ready, or an error message is given
+	*/
+	Ready(ctxt context.Context) error
+
 	/*
 		Publish publishes a message under a subject
 
@@ -86,4 +95,34 @@ GetDataAPIWrapper gets an instance of DataAPIWrapper
 */
 func GetDataAPIWrapper(core *api.APIClient) DataAPIWrapper {
 	return &dataAPIWrapperImpl{client: core}
+}
+
+/*
+Ready check whether the httpmq dataplane API is ready
+
+ @param ctxt context.Context - the caller context
+ @return whether the dataplane API is ready, or an error message is given
+*/
+func (c *dataAPIWrapperImpl) Ready(ctxt context.Context) error {
+	request := c.client.DataplaneApi.V1DataReadyGet(ctxt)
+
+	response, _, err := c.client.DataplaneApi.V1DataReadyGetExecute(request)
+	if err != nil {
+		return err
+	}
+
+	errorDetail, ok := response.GetErrorOk()
+	errorMsg := ""
+	if ok {
+		msg, ok := errorDetail.GetMessageOk()
+		if ok {
+			errorMsg = *msg
+		}
+	}
+
+	if !response.Success {
+		return fmt.Errorf("dataplane API not ready: %s", errorMsg)
+	}
+
+	return nil
 }
