@@ -1,29 +1,29 @@
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/alwitt/httpmq-go/management"
+	"github.com/apex/log"
+	"github.com/go-playground/validator/v10"
+	"github.com/urfave/cli/v2"
+)
 
-// ManagementCLIArgs cli arguments need for the operating against the management APIs
-type ManagementCLIArgs struct {
-	ServerURL string `validate:"required,url"`
-}
+/*
+GetManagementCLIFlags fetch the list CLI arguments needed by management API subcommands
 
-// GetManagementCLIFlags retrieve the set of CMD flags for calling management APIs
+ @param args *ManagementCLIArgs - where CLI arguments are stored
+ @return the list CLI arguments
+*/
 func GetManagementCLIFlags(args *ManagementCLIArgs) []cli.Flag {
-	return []cli.Flag{
-		&cli.StringFlag{
-			Name:        "management-server-url",
-			Usage:       "Management server URL",
-			Aliases:     []string{"s"},
-			EnvVars:     []string{"MANAGEMENT_SERVER_URL"},
-			Value:       "http://127.0.0.1:3000",
-			DefaultText: "http://127.0.0.1:3000",
-			Destination: &args.ServerURL,
-			Required:    false,
-		},
-	}
+	baseFlags := getCommonCLIFlags(&args.CommonCLIArgs)
+	return baseFlags
 }
 
-// GetManagementCLISubcmds produces a list of subcommands supported by management API
+/*
+GetManagementCLISubcmds fetch the list subcommands supported for the management API
+
+ @param args *ManagementCLIArgs - the structure where the CLI arguments are stored
+ @return the list of CLI subcommands
+*/
 func GetManagementCLISubcmds(args *ManagementCLIArgs) []*cli.Command {
 	return []*cli.Command{
 		{
@@ -33,4 +33,27 @@ func GetManagementCLISubcmds(args *ManagementCLIArgs) []*cli.Command {
 			Subcommands: getMgntStreamsCliSubcmds(args),
 		},
 	}
+}
+
+/*
+defineClientManagementAPI creates a httpmq client for management API
+
+ @param args *ManagementCLIArgs - where CLI arguments are stored
+ @return the httpmq client
+*/
+func defineClientManagementAPI(args *ManagementCLIArgs) (management.MgmtAPIWrapper, error) {
+	validate := validator.New()
+	if err := validate.Struct(args); err != nil {
+		log.WithError(err).Errorf("Failed to parse command line arguments")
+		return nil, err
+	}
+
+	// Define the client
+	client, err := defineAPIClient(args.HTTP, args.isDebug)
+	if err != nil {
+		log.WithError(err).Errorf("Faild to define httpmq API client")
+	}
+
+	wrapper := management.GetMgmtAPIWrapper(client)
+	return wrapper, err
 }
