@@ -77,13 +77,12 @@ func (c *CommonCLIArgs) initialSetup(validate *validator.Validate) error {
 	return nil
 }
 
-// ManagementCLIArgs cli arguments needed for operating against management APIs
-type ManagementCLIArgs struct {
-	CommonCLIArgs
+// streamManageCLIArgs cli arguments needed for operation stream management
+type streamManageCLIArgs struct {
 	// createStream argument needed for defining new stream
 	createStream createStreamCLIArgs `validate:"-"`
-	// fetchStream argument needed to fetch info on a stream
-	fetchStream fetchStreamCLIArgs `validate:"-"`
+	// getStream argument needed to fetch info on a stream
+	getStream getStreamCLIArgs `validate:"-"`
 	// deleteStream argument needed to delete a stream
 	deleteStream deleteStreamCLIArgs `validate:"-"`
 	// changeSubject argument needed to change a stream's target subjects
@@ -92,12 +91,32 @@ type ManagementCLIArgs struct {
 	changeRetention createChangeRetentionCLIArgs `validate:"-"`
 }
 
+// consumerManageCLIArgs cli arguments needed for operation consumer management
+type consumerManageCLIArgs struct {
+	stream string `validate:"required"`
+	// getConsumer argument needed to get info on a consumer
+	getConsumer getConsumerCLIArgs `validate:"-"`
+	// createConsumer argument needed to create a new consumer
+	createConsumer createConsumerCLIArgs `validate:"-"`
+	// deleteConsumer argument needed to delete a consumer
+	deleteConsumer deleteConsumerCLIArgs `validate:"-"`
+}
+
+// ManagementCLIArgs cli arguments needed for operating against management APIs
+type ManagementCLIArgs struct {
+	CommonCLIArgs
+	// stream argument needed for stream management
+	stream streamManageCLIArgs `validate:"-"`
+	// consumer argument needed for consumer management
+	consumer consumerManageCLIArgs `validate:"-"`
+}
+
 /*
 getCommonCLIFlags fetch the list of CLI arguments common to both management and dataplane API
 subcommands.
 
  @param args *CommonCLIArgs - where CLI arguments are stored
- @return the list CLI arguments
+ @return the list of CLI arguments
 */
 func getCommonCLIFlags(args *CommonCLIArgs) []cli.Flag {
 	return []cli.Flag{

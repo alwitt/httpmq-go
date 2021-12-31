@@ -42,8 +42,15 @@ func GetManagementCLISubcmds(args *ManagementCLIArgs) []*cli.Command {
 		{
 			Name:        "stream",
 			Usage:       "Manage streams",
-			Description: "Manages JetStream streams through httpmq management API",
-			Subcommands: getMgntStreamsCliSubcmds(args),
+			Description: "Manages streams through httpmq management API",
+			Subcommands: getMgntStreamsCLISubcmds(args),
+		},
+		{
+			Name:        "consumer",
+			Usage:       "Manage consumers",
+			Description: "Manages consumers through httpmq management API",
+			Flags:       getMgntConsumerCLIFlags(&args.consumer),
+			Subcommands: getMgntConsumerCLISubcmds(args),
 		},
 	}
 }

@@ -12,46 +12,46 @@ import (
 )
 
 /*
-getMgntStreamsCliSubcmds fetch the list of subcommands for managing streams through API
+getMgntStreamsCLISubcmds fetch the list of subcommands for managing streams through API
 
  @param mgntBaseArgs *ManagementCLIArgs - where CLI arguments are stored
  @return the list of stream CLI subcommands
 */
-func getMgntStreamsCliSubcmds(mgntBaseArgs *ManagementCLIArgs) []*cli.Command {
+func getMgntStreamsCLISubcmds(mgntBaseArgs *ManagementCLIArgs) []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:        "list-all",
+			Name:        "list",
 			Usage:       "List all streams",
 			Description: "List all streams through httpmq management API",
-			Action:      actionListAllStreams(mgntBaseArgs),
+			Action:      actionListStreams(mgntBaseArgs),
 		},
 		{
 			Name:        "create",
 			Usage:       "Define a new stream",
-			Description: "Define a new  stream through httpmq management API",
-			Flags:       actionCreateStreamCLIFlags(&mgntBaseArgs.createStream),
+			Description: "Define a new stream through httpmq management API",
+			Flags:       actionCreateStreamCLIFlags(&mgntBaseArgs.stream.createStream),
 			Action:      actionCreateStream(mgntBaseArgs),
 		},
 		{
-			Name:        "fetch",
+			Name:        "get",
 			Usage:       "Fetch one stream",
 			Description: "Read information regarding one stream through management API",
-			Flags:       actionFetchStreamCLIFlags(&mgntBaseArgs.fetchStream),
-			Action:      actionFetchStream(mgntBaseArgs),
+			Flags:       actionGetStreamCLIFlags(&mgntBaseArgs.stream.getStream),
+			Action:      actionGetStream(mgntBaseArgs),
 		},
 		{
 			Name:        "delete",
 			Usage:       "Delete one stream",
 			Description: "Delete one stream through management API",
-			Flags:       actionDeleteStreamCLIFlags(&mgntBaseArgs.deleteStream),
+			Flags:       actionDeleteStreamCLIFlags(&mgntBaseArgs.stream.deleteStream),
 			Action:      actionDeleteStream(mgntBaseArgs),
 		},
 		{
 			Name:        "change-subject",
 			Aliases:     []string{"cs"},
 			Usage:       "Change target subject of stream",
-			Description: "Changed the target subjects of a stream",
-			Flags:       actionChangeSubjectsCLIFlags(&mgntBaseArgs.changeSubject),
+			Description: "Changed the target subjects of a stream through management API",
+			Flags:       actionChangeSubjectsCLIFlags(&mgntBaseArgs.stream.changeSubject),
 			Action:      actionChangeSubjects(mgntBaseArgs),
 		},
 		{
@@ -59,7 +59,7 @@ func getMgntStreamsCliSubcmds(mgntBaseArgs *ManagementCLIArgs) []*cli.Command {
 			Aliases:     []string{"ca"},
 			Usage:       "Change stream message retention",
 			Description: "Changed a stream's message retention policy. Only exposed message age here.",
-			Flags:       actionChangeRetentionCLIFlags(&mgntBaseArgs.changeRetention),
+			Flags:       actionChangeRetentionCLIFlags(&mgntBaseArgs.stream.changeRetention),
 			Action:      actionChangeRetention(mgntBaseArgs),
 		},
 	}
@@ -68,12 +68,12 @@ func getMgntStreamsCliSubcmds(mgntBaseArgs *ManagementCLIArgs) []*cli.Command {
 // ==============================================================================
 
 /*
-actionListAllStreams query the management API for list of all streams
+actionListStreams query the management API for list of all streams
 
  @param mgntBaseArgs *ManagementCLIArgs - where CLI arguments are stored
  @return the CLI action for the subcommand
 */
-func actionListAllStreams(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
+func actionListStreams(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		client, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
@@ -154,42 +154,44 @@ func actionCreateStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		validate := validator.New()
-		if err := validate.Struct(&mgntBaseArgs.createStream); err != nil {
+		if err := validate.Struct(&mgntBaseArgs.stream.createStream); err != nil {
 			return err
 		}
 		params := api.ManagementJSStreamParam{
-			Name:   mgntBaseArgs.createStream.Name,
-			MaxAge: api.PtrInt64(mgntBaseArgs.createStream.MaxMsgAge.Nanoseconds()),
+			Name:   mgntBaseArgs.stream.createStream.Name,
+			MaxAge: api.PtrInt64(mgntBaseArgs.stream.createStream.MaxMsgAge.Nanoseconds()),
 		}
-		subjects := mgntBaseArgs.createStream.Subjects.Value()
+		subjects := mgntBaseArgs.stream.createStream.Subjects.Value()
 		if len(subjects) > 0 {
 			params.Subjects = &subjects
 		} else {
-			params.Subjects = &[]string{mgntBaseArgs.createStream.Name}
+			params.Subjects = &[]string{mgntBaseArgs.stream.createStream.Name}
 		}
 		reqID, err := client.CreateStream(context.Background(), params)
 		if err != nil {
-			log.WithError(err).Errorf("Failed to create new stream %s", mgntBaseArgs.createStream.Name)
+			log.WithError(err).Errorf(
+				"Failed to create new stream %s", mgntBaseArgs.stream.createStream.Name,
+			)
 			return err
 		}
-		log.Infof("Created new stream %s. Request ID %s", mgntBaseArgs.createStream.Name, reqID)
+		log.Infof("Created new stream %s. Request ID %s", mgntBaseArgs.stream.createStream.Name, reqID)
 		return nil
 	}
 }
 
 // ==============================================================================
 
-// fetchStreamCLIArgs cli arguments needed for query one stream
-type fetchStreamCLIArgs struct {
+// getStreamCLIArgs cli arguments needed for query one stream
+type getStreamCLIArgs struct {
 	Name string `validate:"required"`
 }
 
 /*
-actionFetchStreamCLIFlags fetch the list of CLI arguments needed by fetch stream info
+actionGetStreamCLIFlags fetch the list of CLI arguments needed by fetch stream info
 
  @param args *fetchStreamCLIArgs - arguments needed for fetch stream action
 */
-func actionFetchStreamCLIFlags(args *fetchStreamCLIArgs) []cli.Flag {
+func actionGetStreamCLIFlags(args *getStreamCLIArgs) []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:        "name",
@@ -202,24 +204,26 @@ func actionFetchStreamCLIFlags(args *fetchStreamCLIArgs) []cli.Flag {
 }
 
 /*
-actionFetchStream fetch stream info through management API
+actionGetStream fetch stream info through management API
 
  @param mgntBaseArgs *ManagementCLIArgs - where CLI arguments are stored
  @return the CLI action for the subcommand
 */
-func actionFetchStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
+func actionGetStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		client, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
 		validate := validator.New()
-		if err := validate.Struct(&mgntBaseArgs.fetchStream); err != nil {
+		if err := validate.Struct(&mgntBaseArgs.stream.getStream); err != nil {
 			return err
 		}
-		reqID, info, err := client.GetStream(context.Background(), mgntBaseArgs.fetchStream.Name)
+		reqID, info, err := client.GetStream(context.Background(), mgntBaseArgs.stream.getStream.Name)
 		if err != nil {
-			log.WithError(err).Errorf("Failed to read stream %s info", mgntBaseArgs.fetchStream.Name)
+			log.WithError(err).Errorf(
+				"Failed to read stream %s info", mgntBaseArgs.stream.getStream.Name,
+			)
 			return err
 		}
 		type response struct {
@@ -232,7 +236,7 @@ func actionFetchStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			log.WithError(err).Errorf("Failed to JSON format stream info")
 			return err
 		}
-		log.Infof("Stream %s\n%s", mgntBaseArgs.fetchStream.Name, string(t))
+		log.Infof("Stream %s\n%s", mgntBaseArgs.stream.getStream.Name, string(t))
 		return nil
 	}
 }
@@ -274,15 +278,15 @@ func actionDeleteStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		validate := validator.New()
-		if err := validate.Struct(&mgntBaseArgs.deleteStream); err != nil {
+		if err := validate.Struct(&mgntBaseArgs.stream.deleteStream); err != nil {
 			return err
 		}
-		reqID, err := client.DeleteStream(context.Background(), mgntBaseArgs.deleteStream.Name)
+		reqID, err := client.DeleteStream(context.Background(), mgntBaseArgs.stream.deleteStream.Name)
 		if err != nil {
-			log.WithError(err).Errorf("Failed to delete stream %s", mgntBaseArgs.deleteStream.Name)
+			log.WithError(err).Errorf("Failed to delete stream %s", mgntBaseArgs.stream.deleteStream.Name)
 			return err
 		}
-		log.Infof("Delete stream %s. Request ID %s", mgntBaseArgs.deleteStream.Name, reqID)
+		log.Infof("Delete stream %s. Request ID %s", mgntBaseArgs.stream.deleteStream.Name, reqID)
 		return nil
 	}
 }
@@ -332,21 +336,23 @@ func actionChangeSubjects(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		validate := validator.New()
-		if err := validate.Struct(&mgntBaseArgs.changeSubject); err != nil {
+		if err := validate.Struct(&mgntBaseArgs.stream.changeSubject); err != nil {
 			return err
 		}
 		reqID, err := client.ChangeStreamSubjects(
 			context.Background(),
-			mgntBaseArgs.changeSubject.Name,
-			mgntBaseArgs.changeSubject.Subjects.Value(),
+			mgntBaseArgs.stream.changeSubject.Name,
+			mgntBaseArgs.stream.changeSubject.Subjects.Value(),
 		)
 		if err != nil {
 			log.WithError(err).Errorf(
-				"Failed to change stream %s subjects", mgntBaseArgs.deleteStream.Name,
+				"Failed to change stream %s subjects", mgntBaseArgs.stream.deleteStream.Name,
 			)
 			return err
 		}
-		log.Infof("Change stream %s subjects. Request ID %s", mgntBaseArgs.deleteStream.Name, reqID)
+		log.Infof(
+			"Change stream %s subjects. Request ID %s", mgntBaseArgs.stream.deleteStream.Name, reqID,
+		)
 		return nil
 	}
 }
@@ -398,23 +404,25 @@ func actionChangeRetention(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		validate := validator.New()
-		if err := validate.Struct(&mgntBaseArgs.changeRetention); err != nil {
+		if err := validate.Struct(&mgntBaseArgs.stream.changeRetention); err != nil {
 			return err
 		}
 		params := api.ManagementJSStreamLimits{
-			MaxAge: api.PtrInt64(mgntBaseArgs.changeRetention.MaxMsgAge.Nanoseconds()),
+			MaxAge: api.PtrInt64(mgntBaseArgs.stream.changeRetention.MaxMsgAge.Nanoseconds()),
 		}
 		reqID, err := client.UpdateStreamLimits(
-			context.Background(), mgntBaseArgs.changeRetention.Name, params,
+			context.Background(), mgntBaseArgs.stream.changeRetention.Name, params,
 		)
 		if err != nil {
 			log.WithError(err).Errorf(
-				"Failed to change stream %s data retention", mgntBaseArgs.changeRetention.Name,
+				"Failed to change stream %s data retention", mgntBaseArgs.stream.changeRetention.Name,
 			)
 			return err
 		}
 		log.Infof(
-			"Changed stream %s data retention. Request ID %s", mgntBaseArgs.changeRetention.Name, reqID,
+			"Changed stream %s data retention. Request ID %s",
+			mgntBaseArgs.stream.changeRetention.Name,
+			reqID,
 		)
 		return nil
 	}
