@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alwitt/httpmq-go/dataplane"
 	"github.com/alwitt/httpmq-go/management"
 	"github.com/apex/log"
 	"github.com/go-playground/validator/v10"
@@ -79,5 +80,32 @@ func defineClientManagementAPI(args *ManagementCLIArgs) (management.MgmtAPIWrapp
 	}
 
 	wrapper := management.GetMgmtAPIWrapper(client)
+	return wrapper, err
+}
+
+/*
+defineClientDataplaneAPI creates a httpmq client for dataplane API
+
+ @param args *DataplaneCLIArgs - where CLI arguments are stored
+ @return the httpmq client
+*/
+func defineClientDataplaneAPI(args *DataplaneCLIArgs) (dataplane.DataAPIWrapper, error) {
+	validate := validator.New()
+	if err := args.initialSetup(validate); err != nil {
+		log.WithError(err).Errorf("Failed to parse command line arguments")
+		return nil, err
+	}
+	if err := validate.Struct(args); err != nil {
+		log.WithError(err).Errorf("Failed to parse command line arguments")
+		return nil, err
+	}
+
+	// Define the client
+	client, err := defineAPIClient(args.HTTP, args.isDebug)
+	if err != nil {
+		log.WithError(err).Errorf("Faild to define httpmq API client")
+	}
+
+	wrapper := dataplane.GetDataAPIWrapper(client)
 	return wrapper, err
 }

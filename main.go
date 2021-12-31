@@ -9,6 +9,7 @@ import (
 )
 
 var mgmtCLIArgs cmd.ManagementCLIArgs
+var dataCLIArgs cmd.DataplaneCLIArgs
 
 var logTags log.Fields
 
@@ -30,6 +31,14 @@ func main() {
 				Description: "Operate the httpmq management API",
 				Flags:       cmd.GetManagementCLIFlags(&mgmtCLIArgs),
 				Subcommands: cmd.GetManagementCLISubcmds(&mgmtCLIArgs),
+			},
+			{
+				Name:        "dataplane",
+				Usage:       "dataplane API client",
+				Aliases:     []string{"data"},
+				Description: "Operate the httpmq dataplane API",
+				Flags:       cmd.GetDataplaneCLIFlags(&dataCLIArgs),
+				Subcommands: cmd.GetDataplaneCLISubcmds(&dataCLIArgs),
 			},
 		},
 	}

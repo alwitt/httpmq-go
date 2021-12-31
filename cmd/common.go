@@ -111,6 +111,15 @@ type ManagementCLIArgs struct {
 	consumer consumerManageCLIArgs `validate:"-"`
 }
 
+// DataplaneCLIArgs cli arguments needed for operating against dataplane APIs
+type DataplaneCLIArgs struct {
+	CommonCLIArgs
+	// publish argument needed for message publish
+	publish publishMessageCLIArgs `validate:"-"`
+	// subscribe argument needed for message push subscribe
+	subscribe subscribeForMessageCLIArgs `validate:"-"`
+}
+
 /*
 getCommonCLIFlags fetch the list of CLI arguments common to both management and dataplane API
 subcommands.
