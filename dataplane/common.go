@@ -5,34 +5,35 @@ import (
 	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
+	"github.com/go-playground/validator/v10"
 )
 
 // MsgACKParam parameters for sending a message ACK
 type MsgACKParam struct {
 	// Stream is the name of the stream
-	Stream string
+	Stream string `validate:"required"`
 	// StreamSeq is the stream scope message sequence number
-	StreamSeq int64
+	StreamSeq int64 `validate:"required,gte=1"`
 	// Consumer is the name of the consumer
-	Consumer string
+	Consumer string `validate:"required"`
 	// ConsumerSeq is the consumer scope message sequence number
-	ConsumerSeq int64
+	ConsumerSeq int64 `validate:"required,gte=1"`
 }
 
 // PushSubscribeParam parameters for starting a push subscription
 type PushSubscribeParam struct {
 	// Stream is the name of the stream
-	Stream string
+	Stream string `validate:"required"`
 	// Consumer is the name of the consumer
-	Consumer string
+	Consumer string `validate:"required"`
 	// SubjectFilter is the subject filter to subscribe to message for
-	SubjectFilter string
+	SubjectFilter string `validate:"required"`
 	// MaxMsgInflight is the max number of inflight messages if provided
-	MaxMsgInflight *int
+	MaxMsgInflight *int `validate:"omitempty,gte=1"`
 	// DeliveryGroup is the delivery group the consumer belongs if the consumer uses one
 	DeliveryGroup *string
 	// MsgChan channel for passing back messages
-	MsgChan *chan api.ApisAPIRestRespDataMessage
+	MsgChan *chan api.ApisAPIRestRespDataMessage `validate:"-"`
 }
 
 // DataAPIWrapper is a client wrapper object for operating the httpmq dataplane API
@@ -84,7 +85,8 @@ type DataAPIWrapper interface {
 
 // dataAPIWrapperImpl implements DataAPIWrapper
 type dataAPIWrapperImpl struct {
-	client *api.APIClient
+	client   *api.APIClient
+	validate *validator.Validate
 }
 
 /*
@@ -94,7 +96,7 @@ GetDataAPIWrapper gets an instance of DataAPIWrapper
  @return the DataAPIWrapper object
 */
 func GetDataAPIWrapper(core *api.APIClient) DataAPIWrapper {
-	return &dataAPIWrapperImpl{client: core}
+	return &dataAPIWrapperImpl{client: core, validate: validator.New()}
 }
 
 /*

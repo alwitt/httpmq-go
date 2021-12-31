@@ -45,12 +45,11 @@ type CommonCLIArgs struct {
 }
 
 /*
-InitialSetup perform basic application setup
+initialSetup perform basic application setup
 
  @return either setup is successful
 */
-func (c *CommonCLIArgs) InitialSetup() error {
-	validate := validator.New()
+func (c *CommonCLIArgs) initialSetup(validate *validator.Validate) error {
 	if err := validate.Struct(c); err != nil {
 		return err
 	}
@@ -81,6 +80,16 @@ func (c *CommonCLIArgs) InitialSetup() error {
 // ManagementCLIArgs cli arguments needed for operating against management APIs
 type ManagementCLIArgs struct {
 	CommonCLIArgs
+	// createStream argument needed for defining new stream
+	createStream createStreamCLIArgs `validate:"-"`
+	// fetchStream argument needed to fetch info on a stream
+	fetchStream fetchStreamCLIArgs `validate:"-"`
+	// deleteStream argument needed to delete a stream
+	deleteStream deleteStreamCLIArgs `validate:"-"`
+	// changeSubject argument needed to change a stream's target subjects
+	changeSubject createChangeSubjectsCLIArgs `validate:"-"`
+	// changeRetention argument needed to change a stream's data retention
+	changeRetention createChangeRetentionCLIArgs `validate:"-"`
 }
 
 /*
@@ -114,16 +123,6 @@ func getCommonCLIFlags(args *CommonCLIArgs) []cli.Flag {
 			Required:    false,
 		},
 		// HTTP client
-		&cli.StringFlag{
-			Name:        "management-server-url",
-			Usage:       "Management server URL",
-			Aliases:     []string{"s"},
-			EnvVars:     []string{"MANAGEMENT_SERVER_URL"},
-			Value:       "http://127.0.0.1:3000",
-			DefaultText: "http://127.0.0.1:3000",
-			Destination: &args.HTTP.ServerURL,
-			Required:    false,
-		},
 		&cli.StringFlag{
 			Name:        "custom-ca-file",
 			Usage:       "Custom CA file to use with HTTP client",

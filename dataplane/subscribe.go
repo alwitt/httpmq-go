@@ -21,6 +21,10 @@ SendACK send a message ACK for an associated JetStream message
          an error message if request failed
 */
 func (c *dataAPIWrapperImpl) SendACK(ctxt context.Context, params MsgACKParam) (string, error) {
+	if err := c.validate.Struct(&params); err != nil {
+		return "", err
+	}
+
 	baseRequest := c.client.DataplaneApi.V1DataStreamStreamNameConsumerConsumerNameAckPost(
 		ctxt, params.Stream, params.Consumer,
 	)
@@ -77,6 +81,10 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 ) (string, error) {
 	// Because the push subscription is a expected to be a server-send-event stream, will
 	// have to directly operate the HTTP client
+
+	if err := c.validate.Struct(&params); err != nil {
+		return "", err
+	}
 
 	localBasePath, err := c.client.GetConfig().ServerURLWithContext(
 		ctxt, "DataplaneApiService.V1DataStreamStreamNameConsumerConsumerNameGet",
