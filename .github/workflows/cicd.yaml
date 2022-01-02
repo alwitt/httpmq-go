@@ -43,7 +43,7 @@ jobs:
           - 4222:4222
         options: --hostname dev-nats
       httpmq-mgmt:
-        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.2.2-management
+        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.2.3-management
         ports:
           - 3000:3000
         env:
@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       httpmq-data:
-        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.2.2-dataplane
+        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.2.3-dataplane
         ports:
           - 3001:3000
         env:
