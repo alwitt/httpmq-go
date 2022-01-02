@@ -36,21 +36,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      HTTPMQ_IMG_REPO: alwitt/httpmq
-      HTTPMQ_IMG_TAG: "0.2.1"
-
     services:
       nats:
         image: alwitt/nats-js:2.6.2-alpine
         ports:
           - 4222:4222
       httpmq-mgmt:
-        image: ${{ env.HTTPMQ_IMG_REPO }}:${{ env.HTTPMQ_IMG_TAG }}-management
+        image: alwitt/httpmq:0.2.1-management
         ports:
           - 3000:3000
       httpmq-data:
-        image: ${{ env.HTTPMQ_IMG_REPO }}:${{ env.HTTPMQ_IMG_TAG }}-dataplane
+        image: alwitt/httpmq:0.2.1-dataplane
         ports:
           - 3001:3001
 
