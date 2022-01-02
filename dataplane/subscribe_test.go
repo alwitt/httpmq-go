@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/alwitt/httpmq-go/api"
 	"github.com/alwitt/httpmq-go/common"
@@ -87,7 +86,7 @@ func TestPushSubscribe(t *testing.T) {
 		msg := uuid.New().String()
 		_, err := uut.Publish(utCtxt, subjects0[0], []byte(msg))
 		assert.Nil(err)
-		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second)
+		rdTimeout, lclCancel := context.WithCancel(utCtxt)
 		defer lclCancel()
 		select {
 		case rxMsg, ok := <-msgChan1:
@@ -122,7 +121,7 @@ func TestPushSubscribe(t *testing.T) {
 		assert.True(strings.Contains(err.Error(), "context canceled"))
 	}()
 	{
-		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second)
+		rdTimeout, lclCancel := context.WithCancel(utCtxt)
 		defer lclCancel()
 		select {
 		case rxMsg, ok := <-msgChan1:
@@ -164,7 +163,7 @@ func TestPushSubscribe(t *testing.T) {
 		msg1 := fmt.Sprintf("test-message-1.%s", uuid.New().String())
 		_, err := uut.Publish(utCtxt, subjects0[0], []byte(msg1))
 		assert.Nil(err)
-		rdTimeout, lclCancel := context.WithTimeout(utCtxt, time.Second*2)
+		rdTimeout, lclCancel := context.WithCancel(utCtxt)
 		defer lclCancel()
 		select {
 		case rxMsg, ok := <-msgChan2:
