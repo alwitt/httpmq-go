@@ -1,18 +1,20 @@
 # HTTP MQ - Go Client
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_shield)
-
 
 Golang client for [httpmq](https://github.com/alwitt/httpmq)
 
-<!-- https://img.shields.io/badge/License-MIT-blue.svg -->
+[![MIT][License-Image]][License-Url] [![Go Report Card][ReportCard-Image]][ReportCard-Url] ![CICD workflow](https://github.com/alwitt/httpmq-go/actions/workflows/cicd.yaml/badge.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_shield)
+
+[License-Url]: https://mit-license.org/
+[License-Image]: https://img.shields.io/badge/License-MIT-blue.svg
+[ReportCard-Url]: https://goreportcard.com/report/github.com/alwitt/httpmq-go
+[ReportCard-Image]: https://goreportcard.com/badge/github.com/alwitt/httpmq-go
 
 # Table of Content
 
 - [1. Introduction](#1-introduction)
-
 - [2. Installation](#2-installation)
-
 - [3. Local Development](#3-local-development)
+- [4. License](#4-license)
 
 ---
 
@@ -213,5 +215,8 @@ OPTIONS:
 ```
 
 
-## License
+# 4. License
+
+Unless otherwise noted, the httpmq-go source files are distributed under the MIT license found in the LICENSE file.
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_large)
