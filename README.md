@@ -37,7 +37,17 @@ To demonstrate the use of the client, see:
 
 # [2. Installation](#table-of-content)
 
-**TODO**
+```shell
+$ GO111MODULE=on go get github.com/alwitt/httpmq-go
+```
+
+```golang
+import (
+   hmqCommon "github.com/alwitt/httpmq-go/common"
+   hmqData "github.com/alwitt/httpmq-go/dataplane"
+   hmqCtrl "github.com/alwitt/httpmq-go/management"
+)
+```
 
 # [3. Local Development](#table-of-content)
 
