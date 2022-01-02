@@ -49,9 +49,6 @@ jobs:
         env:
           LOG_LEVEL: info
           CONFIG_FILE: /httpmq.yaml
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       httpmq-data:
         image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.2.3-dataplane
         ports:
@@ -59,9 +56,6 @@ jobs:
         env:
           LOG_LEVEL: info
           CONFIG_FILE: /httpmq.yaml
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2

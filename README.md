@@ -2,6 +2,8 @@
 
 Golang client for [httpmq](https://github.com/alwitt/httpmq)
 
+<!-- https://img.shields.io/badge/License-MIT-blue.svg -->
+
 # Table of Content
 
 - [1. Introduction](#1-introduction)
