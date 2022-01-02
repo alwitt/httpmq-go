@@ -64,7 +64,6 @@ jobs:
       - name: Test
         run: |
           go test --count 1 -timeout 60s -short ./management/...
-          go test --count 1 -timeout 60s -short ./dataplane/...
         env:
           HTTPMQ_MGMT_API_URL: http://127.0.0.1:3000
           HTTPMQ_DATA_API_URL: http://127.0.0.1:3001
