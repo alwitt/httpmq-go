@@ -11,6 +11,7 @@ jobs:
     env:
       IMAGE_REPO: alwitt/cicd-support
       HTTPMQ_IMAGE_REPO: alwitt/httpmq
+      HTTPMQ_IMAGE_NAME: httpmq
       HTTPMQ_IMAGE_TAG: "0.2.2"
 
     steps:
@@ -32,7 +33,7 @@ jobs:
           context: ./docker/
           file: ./docker/Dockerfile.management-api-for-test
           tags: |
-            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_REPO }}.${{ env.HTTPMQ_IMAGE_TAG }}-management
+            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_NAME }}-${{ env.HTTPMQ_IMAGE_TAG }}-management
           build-args: |
             BASE_IMG=${{ env.HTTPMQ_IMAGE_REPO }}
             BASE_IMG_TAG=${{ env.HTTPMQ_IMAGE_TAG }}
@@ -44,7 +45,7 @@ jobs:
           context: ./docker/
           file: ./docker/Dockerfile.dataplane-api-for-test
           tags: |
-            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_REPO }}.${{ env.HTTPMQ_IMAGE_TAG }}-dataplane
+            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_NAME }}-${{ env.HTTPMQ_IMAGE_TAG }}-dataplane
           build-args: |
             BASE_IMG=${{ env.HTTPMQ_IMAGE_REPO }}
             BASE_IMG_TAG=${{ env.HTTPMQ_IMAGE_TAG }}
