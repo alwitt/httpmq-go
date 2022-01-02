@@ -1,4 +1,6 @@
 # HTTP MQ - Go Client
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_shield)
+
 
 Golang client for [httpmq](https://github.com/alwitt/httpmq)
 
@@ -207,3 +209,7 @@ OPTIONS:
    --dataplane-server-url value, -s value  Dataplane server URL (default: http://127.0.0.1:4001) [$DATAPLANE_SERVER_URL]
    --help, -h                              show help (default: false)
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_large)
