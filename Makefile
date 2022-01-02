@@ -6,6 +6,11 @@ lint: .prepare ## Lint the files
 	@golint ./...
 	@golangci-lint run ./...
 
+.PHONY: fix
+fix: .prepare ## Lint and fix vialoations
+	@go mod tidy
+	@golangci-lint run --fix ./...
+
 .PHONY: compose
 compose: clean .prepare ## Run docker-compose to create the DEV ENV
 	@docker-compose -f docker-compose.yaml up -d
