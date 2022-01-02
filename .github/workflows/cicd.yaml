@@ -37,18 +37,29 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      nats:
+      dev-nats:
         image: alwitt/nats-js:2.6.2-alpine
         ports:
           - 4222:4222
+        options: --hostname dev-nats
       httpmq-mgmt:
-        image: alwitt/httpmq:0.2.1-management
+        image: alwitt/httpmq:0.2.2-management
         ports:
           - 3000:3000
+        env:
+          LOG_LEVEL: info
+          CONFIG_FILE: /httpmq.yaml
+        volumes:
+          - ./docker/test_httpmq.yaml:/httpmq.yaml
       httpmq-data:
-        image: alwitt/httpmq:0.2.1-dataplane
+        image: alwitt/httpmq:0.2.2-dataplane
         ports:
-          - 3001:3001
+          - 3001:3000
+        env:
+          LOG_LEVEL: info
+          CONFIG_FILE: /httpmq.yaml
+        volumes:
+          - ./docker/test_httpmq.yaml:/httpmq.yaml
 
     steps:
       - uses: actions/checkout@v2
