@@ -1,0 +1,51 @@
+---
+name: Build-Support-Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-service-image:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_REPO: alwitt/cicd-support
+      HTTPMQ_IMAGE_REPO: alwitt/httpmq
+      HTTPMQ_IMAGE_TAG: "0.2.2"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build test image for httpmq management API to use in main CICD workflow
+        uses: docker/build-push-action@v2
+        with:
+          context: ./docker/
+          file: ./docker/Dockerfile.management-api-for-test
+          tags: |
+            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_REPO }}.${{ env.HTTPMQ_IMAGE_TAG }}-management
+          build-args: |
+            BASE_IMG=${{ env.HTTPMQ_IMAGE_REPO }}
+            BASE_IMG_TAG=${{ env.HTTPMQ_IMAGE_TAG }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build test image for httpmq dataplane API to use in main CICD workflow
+        uses: docker/build-push-action@v2
+        with:
+          context: ./docker/
+          file: ./docker/Dockerfile.dataplane-api-for-test
+          tags: |
+            ${{ env.IMAGE_REPO }}:httpmq-go.cicd.${{ env.HTTPMQ_IMAGE_REPO }}.${{ env.HTTPMQ_IMAGE_TAG }}-dataplane
+          build-args: |
+            BASE_IMG=${{ env.HTTPMQ_IMAGE_REPO }}
+            BASE_IMG_TAG=${{ env.HTTPMQ_IMAGE_TAG }}
+          push: ${{ github.ref == 'refs/heads/main' }}

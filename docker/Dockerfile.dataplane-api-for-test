@@ -1,0 +1,9 @@
+ARG BASE_IMG=alwitt/httpmq
+ARG BASE_IMG_TAG
+
+FROM ${BASE_IMG}:${BASE_IMG_TAG}
+
+COPY docker/test_httpmq.yaml /httpmq.yaml
+
+ENTRYPOINT ["/usr/bin/httpmq.bin"]
+CMD ["dataplane"]
