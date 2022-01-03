@@ -13,8 +13,9 @@ Golang client for [httpmq](https://github.com/alwitt/httpmq)
 
 - [1. Introduction](#1-introduction)
 - [2. Installation](#2-installation)
-- [3. Local Development](#3-local-development)
-- [4. License](#4-license)
+- [3. Examples](#3-examples)
+- [4. Local Development](#4-local-development)
+- [5. License](#5-license)
 
 ---
 
@@ -30,11 +31,6 @@ Though one can use the generated code in the `api` package directly, a more user
 * `management`: interact with [httpmq](https://github.com/alwitt/httpmq)'s `management` API group.
 * `dataplane`: interact with [httpmq](https://github.com/alwitt/httpmq)'s `dataplane` API group.
 
-To demonstrate the use of the client, see:
-
-* The demo program, `httpmq-test-cli.bin`, illustrates working code and its effects.
-* The unit tests in the `management` and `dataplane` packages.
-
 # [2. Installation](#table-of-content)
 
 ```shell
@@ -49,7 +45,17 @@ import (
 )
 ```
 
-# [3. Local Development](#table-of-content)
+# [3. Examples](#table-of-content)
+
+- [Hello World](examples/hello-world/README.md): basic example showing how to define the client.
+
+- [Manage Streams](examples/manage-streams/README.md): managing streams through the `management` API.
+
+- [Manage Consumers](examples/manage-consumers/README.md): managing consumers through the `management` API.
+
+- [Sending and Receiving Messages](examples/sending-messages/README.md): sending and receiving messages.
+
+# [4. Local Development](#table-of-content)
 
 > **NOTE:** Though the described procedures supports local development, the same `docker-compose.yaml` can be used to create a [httpmq](https://github.com/alwitt/httpmq) test environment independent of this project.
 
@@ -224,8 +230,7 @@ OPTIONS:
    --help, -h                              show help (default: false)
 ```
 
-
-# 4. License
+# [5. License](#table-of-content)
 
 Unless otherwise noted, the httpmq-go source files are distributed under the MIT license found in the LICENSE file.
 
