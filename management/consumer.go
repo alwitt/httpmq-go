@@ -2,7 +2,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
 	"github.com/alwitt/httpmq-go/common"
@@ -29,21 +28,11 @@ func (c *mgmtAPIWrapperImpl) CreateConsumerForStream(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to define new consumer %s on stream %s: %s", stream, params.Name, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil
@@ -69,20 +58,12 @@ func (c *mgmtAPIWrapperImpl) ListAllConsumerOfStream(ctxt context.Context, strea
 		return "", map[string]api.ApisAPIRestRespConsumerInfo{}, err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, map[string]api.ApisAPIRestRespConsumerInfo{}, fmt.Errorf(
-			"failed to list all consumers on stream %s: %s", stream, errorMsg,
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, map[string]api.ApisAPIRestRespConsumerInfo{}, common.GenerateHttpmqError(
+			requestID, httpResp.StatusCode, errorDetail,
 		)
 	}
 
@@ -112,21 +93,11 @@ func (c *mgmtAPIWrapperImpl) GetConsumerOfStream(ctxt context.Context, stream, c
 		return "", nil, err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, nil, fmt.Errorf(
-			"failed to query consumer %s on stream %s: %s", consumer, stream, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, nil, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, response.Consumer, nil
@@ -154,21 +125,11 @@ func (c *mgmtAPIWrapperImpl) DeleteConsumerOnStream(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to delete consumer %s on stream %s: %s", consumer, stream, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil

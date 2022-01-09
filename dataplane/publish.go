@@ -3,7 +3,6 @@ package dataplane
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 
 	"github.com/alwitt/httpmq-go/common"
 )
@@ -29,21 +28,11 @@ func (c *dataAPIWrapperImpl) Publish(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to pubish message to subject %s: %s", subject, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil

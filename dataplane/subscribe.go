@@ -38,26 +38,11 @@ func (c *dataAPIWrapperImpl) SendACK(ctxt context.Context, params MsgACKParam) (
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to send ACK [S:%d, C:%d] for consumer %s on stream %s: %s",
-			params.StreamSeq,
-			params.ConsumerSeq,
-			params.Consumer,
-			params.Stream,
-			errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil
@@ -133,29 +118,20 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 
 	var readErr error
 	readErr = nil
+	requestID := ""
 	for scanner.Scan() {
 		oneMessage := scanner.Text()
 		var parsed api.ApisAPIRestRespDataMessage
 		if readErr = json.Unmarshal([]byte(oneMessage), &parsed); readErr != nil {
 			break
 		}
+		if requestID == "" {
+			requestID = parsed.RequestId
+		}
 		// Error occurred on the other side
 		if !parsed.Success {
-			errorDetail, ok := parsed.GetErrorOk()
-			errorMsg := ""
-			if ok {
-				msg, ok := errorDetail.GetMessageOk()
-				if ok {
-					errorMsg = *msg
-				}
-			}
-			readErr = fmt.Errorf(
-				"push-subscription stream for %s@%s/%s stopped: %s",
-				params.Consumer,
-				params.Stream,
-				params.SubjectFilter,
-				errorMsg,
-			)
+			errorDetail, _ := parsed.GetErrorOk()
+			readErr = common.GenerateHttpmqError(requestID, response.StatusCode, errorDetail)
 			break
 		}
 		// Return the message
@@ -169,9 +145,6 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 	if readErr == nil {
 		readErr = scanner.Err()
 	}
-
-	// Finally get the request ID from the completed response
-	requestID := response.Header.Get(common.RequestIDHeader)
 
 	return requestID, readErr
 }

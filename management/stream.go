@@ -2,7 +2,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
 	"github.com/alwitt/httpmq-go/common"
@@ -27,21 +26,11 @@ func (c *mgmtAPIWrapperImpl) CreateStream(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to define new stream %s: %s", params.Name, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil
@@ -65,20 +54,12 @@ func (c *mgmtAPIWrapperImpl) ListAllStreams(ctxt context.Context) (
 		return "", map[string]api.ApisAPIRestRespStreamInfo{}, err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, map[string]api.ApisAPIRestRespStreamInfo{}, fmt.Errorf(
-			"failed to query for all known streams: %s", errorMsg,
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, map[string]api.ApisAPIRestRespStreamInfo{}, common.GenerateHttpmqError(
+			requestID, httpResp.StatusCode, errorDetail,
 		)
 	}
 
@@ -105,19 +86,11 @@ func (c *mgmtAPIWrapperImpl) GetStream(ctxt context.Context, stream string) (
 		return "", nil, err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, nil, fmt.Errorf("failed to query for stream %s: %s", stream, errorMsg)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, nil, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, response.Stream, nil
@@ -144,21 +117,11 @@ func (c *mgmtAPIWrapperImpl) ChangeStreamSubjects(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to change for stream %s subjects: %s", stream, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil
@@ -185,21 +148,11 @@ func (c *mgmtAPIWrapperImpl) UpdateStreamLimits(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf(
-			"failed to change for stream %s retention limits: %s", stream, errorMsg,
-		)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil
@@ -224,19 +177,11 @@ func (c *mgmtAPIWrapperImpl) DeleteStream(
 		return "", err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
 
 	if !response.Success {
-		return requestID, fmt.Errorf("failed to delete stream %s: %s", stream, errorMsg)
+		errorDetail, _ := response.GetErrorOk()
+		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return requestID, nil

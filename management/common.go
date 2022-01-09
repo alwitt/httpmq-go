@@ -2,9 +2,9 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
+	"github.com/alwitt/httpmq-go/common"
 )
 
 // MgmtAPIWrapper is a client wrapper object for operating the httpmq management API
@@ -160,22 +160,14 @@ Ready check whether the httpmq management API is ready
 func (c *mgmtAPIWrapperImpl) Ready(ctxt context.Context) error {
 	request := c.client.ManagementApi.V1AdminReadyGet(ctxt)
 
-	response, _, err := c.client.ManagementApi.V1AdminReadyGetExecute(request)
+	response, httpResp, err := c.client.ManagementApi.V1AdminReadyGetExecute(request)
 	if err != nil {
 		return err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	if !response.Success {
-		return fmt.Errorf("management API not ready: %s", errorMsg)
+		errorDetail, _ := response.GetErrorOk()
+		return common.GenerateHttpmqError(response.RequestId, httpResp.StatusCode, errorDetail)
 	}
 
 	return nil

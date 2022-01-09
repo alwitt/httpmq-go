@@ -2,9 +2,9 @@ package dataplane
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alwitt/httpmq-go/api"
+	"github.com/alwitt/httpmq-go/common"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -108,22 +108,14 @@ Ready check whether the httpmq dataplane API is ready
 func (c *dataAPIWrapperImpl) Ready(ctxt context.Context) error {
 	request := c.client.DataplaneApi.V1DataReadyGet(ctxt)
 
-	response, _, err := c.client.DataplaneApi.V1DataReadyGetExecute(request)
+	response, httpResp, err := c.client.DataplaneApi.V1DataReadyGetExecute(request)
 	if err != nil {
 		return err
 	}
 
-	errorDetail, ok := response.GetErrorOk()
-	errorMsg := ""
-	if ok {
-		msg, ok := errorDetail.GetMessageOk()
-		if ok {
-			errorMsg = *msg
-		}
-	}
-
 	if !response.Success {
-		return fmt.Errorf("dataplane API not ready: %s", errorMsg)
+		errorDetail, _ := response.GetErrorOk()
+		return common.GenerateHttpmqError(response.RequestId, httpResp.StatusCode, errorDetail)
 	}
 
 	return nil
