@@ -30,35 +30,50 @@ func TestStreamManagement(t *testing.T) {
 	stream0 := uuid.New().String()
 	subjects0 := []string{uuid.New().String()}
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJSStreamParam{Name: stream0, Subjects: &subjects0}
-		_, err := uut.CreateStream(utCtxt, param)
+		rid, err := uut.CreateStream(reqCtxt, param)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 
 	// Case 1: create the same stream again
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJSStreamParam{Name: stream0, Subjects: &subjects0}
-		_, err := uut.CreateStream(utCtxt, param)
+		rid, err := uut.CreateStream(reqCtxt, param)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 
 	// Case 2: create the another stream but with same subject
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJSStreamParam{Name: uuid.New().String(), Subjects: &subjects0}
-		_, err := uut.CreateStream(utCtxt, param)
+		rid, err := uut.CreateStream(reqCtxt, param)
 		assert.NotNil(err)
+		assert.Equal(callID, rid)
 	}
 
 	// Case 3: read back the stream info
 	{
-		_, streamInfo, err := uut.GetStream(utCtxt, stream0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, streamInfo, err := uut.GetStream(reqCtxt, stream0)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		assert.Equal(stream0, streamInfo.Config.Name)
 		assert.EqualValues(subjects0, *streamInfo.Config.Subjects)
 	}
 	{
-		_, allStreamInfo, err := uut.ListAllStreams(utCtxt)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, allStreamInfo, err := uut.ListAllStreams(reqCtxt)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		streamInfo, ok := allStreamInfo[stream0]
 		assert.True(ok)
 		assert.Equal(stream0, streamInfo.Config.Name)
@@ -68,37 +83,55 @@ func TestStreamManagement(t *testing.T) {
 	// Case 4: alter subjects for stream
 	subjects4 := []string{uuid.New().String(), uuid.New().String()}
 	{
-		_, err := uut.ChangeStreamSubjects(utCtxt, stream0, subjects4)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err := uut.ChangeStreamSubjects(reqCtxt, stream0, subjects4)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 	{
-		_, streamInfo, err := uut.GetStream(utCtxt, stream0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, streamInfo, err := uut.GetStream(reqCtxt, stream0)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		assert.Equal(stream0, streamInfo.Config.Name)
 		assert.EqualValues(subjects4, *streamInfo.Config.Subjects)
 	}
 
 	// Case 5: alter stream data retention
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		msgAge := time.Hour
 		newLimit := api.ManagementJSStreamLimits{
 			MaxAge: api.PtrInt64(msgAge.Nanoseconds()),
 		}
-		_, err := uut.UpdateStreamLimits(utCtxt, stream0, newLimit)
+		rid, err := uut.UpdateStreamLimits(reqCtxt, stream0, newLimit)
 		assert.Nil(err)
-		_, streamInfo, err := uut.GetStream(utCtxt, stream0)
+		assert.Equal(callID, rid)
+		callID = uuid.New().String()
+		reqCtxt = context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, streamInfo, err := uut.GetStream(reqCtxt, stream0)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		assert.Equal(stream0, streamInfo.Config.Name)
 		assert.Equal(msgAge.Nanoseconds(), streamInfo.Config.MaxAge)
 	}
 
 	// Case 6: delete the stream
 	{
-		_, err := uut.DeleteStream(utCtxt, stream0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err := uut.DeleteStream(reqCtxt, stream0)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 	{
-		_, _, err := uut.GetStream(utCtxt, stream0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, _, err := uut.GetStream(reqCtxt, stream0)
 		assert.NotNil(err)
+		assert.Equal(callID, rid)
 	}
 }

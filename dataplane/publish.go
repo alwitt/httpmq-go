@@ -22,15 +22,13 @@ func (c *dataAPIWrapperImpl) Publish(
 	baseRequest := c.client.DataplaneApi.V1DataSubjectSubjectNamePost(ctxt, subject)
 	encoded := base64.StdEncoding.EncodeToString(message)
 	request := baseRequest.Message(encoded)
-
-	response, httpResp, err := c.client.DataplaneApi.V1DataSubjectSubjectNamePostExecute(request)
-	if err != nil {
-		return "", err
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
 	}
 
+	response, httpResp, err := c.client.DataplaneApi.V1DataSubjectSubjectNamePostExecute(request)
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}

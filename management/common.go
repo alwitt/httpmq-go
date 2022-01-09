@@ -161,13 +161,10 @@ func (c *mgmtAPIWrapperImpl) Ready(ctxt context.Context) error {
 	request := c.client.ManagementApi.V1AdminReadyGet(ctxt)
 
 	response, httpResp, err := c.client.ManagementApi.V1AdminReadyGetExecute(request)
-	if err != nil {
-		return err
-	}
-
-	if !response.Success {
+	requestID := httpResp.Header.Get(common.RequestIDHeader)
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
-		return common.GenerateHttpmqError(response.RequestId, httpResp.StatusCode, errorDetail)
+		return common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return nil

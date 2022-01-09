@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
@@ -9,6 +10,24 @@ import (
 
 // RequestIDHeader is expected HTTP header field carrying the httpmq request ID
 const RequestIDHeader = "Httpmq-Request-ID"
+
+// UseGivenRequestID is the Key type for adding a user provided request ID to a request context
+type UseGivenRequestID struct{}
+
+/*
+FetchUserProvidedRequestID reads the user provided request ID from context if present
+
+ @param ctxt context.Context - the request context
+ @return if present, the user provided request ID
+         or nil
+*/
+func FetchUserProvidedRequestID(ctxt context.Context) *string {
+	t := ctxt.Value(UseGivenRequestID{})
+	if v, ok := t.(string); ok {
+		return &v
+	}
+	return nil
+}
 
 /*
 DefineAPIClient create an API client object targeting a specific httpmq server URL

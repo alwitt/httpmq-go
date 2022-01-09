@@ -21,16 +21,14 @@ func (c *mgmtAPIWrapperImpl) CreateConsumerForStream(
 ) (string, error) {
 	baseRequest := c.client.ManagementApi.V1AdminStreamStreamNameConsumerPost(ctxt, stream)
 	request := baseRequest.ConsumerParam(params)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameConsumerPostExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -51,16 +49,14 @@ func (c *mgmtAPIWrapperImpl) ListAllConsumerOfStream(ctxt context.Context, strea
 	string, map[string]api.ApisAPIRestRespConsumerInfo, error,
 ) {
 	request := c.client.ManagementApi.V1AdminStreamStreamNameConsumerGet(ctxt, stream)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameConsumerGetExecute(request)
-	if err != nil {
-		return "", map[string]api.ApisAPIRestRespConsumerInfo{}, err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, map[string]api.ApisAPIRestRespConsumerInfo{}, common.GenerateHttpmqError(
 			requestID, httpResp.StatusCode, errorDetail,
@@ -86,16 +82,14 @@ func (c *mgmtAPIWrapperImpl) GetConsumerOfStream(ctxt context.Context, stream, c
 	request := c.client.ManagementApi.V1AdminStreamStreamNameConsumerConsumerNameGet(
 		ctxt, stream, consumer,
 	)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameConsumerConsumerNameGetExecute(request)
-	if err != nil {
-		return "", nil, err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, nil, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -118,16 +112,14 @@ func (c *mgmtAPIWrapperImpl) DeleteConsumerOnStream(
 	request := c.client.ManagementApi.V1AdminStreamStreamNameConsumerConsumerNameDelete(
 		ctxt, stream, consumer,
 	)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameConsumerConsumerNameDeleteExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}

@@ -20,15 +20,13 @@ func (c *mgmtAPIWrapperImpl) CreateStream(
 ) (string, error) {
 	initRequest := c.client.ManagementApi.V1AdminStreamPost(ctxt)
 	request := initRequest.Setting(params)
-
-	response, httpResp, err := c.client.ManagementApi.V1AdminStreamPostExecute(request)
-	if err != nil {
-		return "", err
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
 	}
 
+	response, httpResp, err := c.client.ManagementApi.V1AdminStreamPostExecute(request)
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -48,15 +46,13 @@ func (c *mgmtAPIWrapperImpl) ListAllStreams(ctxt context.Context) (
 	string, map[string]api.ApisAPIRestRespStreamInfo, error,
 ) {
 	request := c.client.ManagementApi.V1AdminStreamGet(ctxt)
-
-	response, httpResp, err := c.client.ManagementApi.V1AdminStreamGetExecute(request)
-	if err != nil {
-		return "", map[string]api.ApisAPIRestRespStreamInfo{}, err
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
 	}
 
+	response, httpResp, err := c.client.ManagementApi.V1AdminStreamGetExecute(request)
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, map[string]api.ApisAPIRestRespStreamInfo{}, common.GenerateHttpmqError(
 			requestID, httpResp.StatusCode, errorDetail,
@@ -79,16 +75,14 @@ func (c *mgmtAPIWrapperImpl) GetStream(ctxt context.Context, stream string) (
 	string, *api.ApisAPIRestRespStreamInfo, error,
 ) {
 	request := c.client.ManagementApi.V1AdminStreamStreamNameGet(ctxt, stream)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameGetExecute(request)
-	if err != nil {
-		return "", nil, err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, nil, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -110,16 +104,14 @@ func (c *mgmtAPIWrapperImpl) ChangeStreamSubjects(
 ) (string, error) {
 	baseRequest := c.client.ManagementApi.V1AdminStreamStreamNameSubjectPut(ctxt, stream)
 	request := baseRequest.Subjects(*api.NewApisAPIRestReqStreamSubjects(newSubjects))
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameSubjectPutExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -141,16 +133,14 @@ func (c *mgmtAPIWrapperImpl) UpdateStreamLimits(
 ) (string, error) {
 	baseRequest := c.client.ManagementApi.V1AdminStreamStreamNameLimitPut(ctxt, stream)
 	request := baseRequest.Limits(limits)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameLimitPutExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -170,16 +160,14 @@ func (c *mgmtAPIWrapperImpl) DeleteStream(
 	ctxt context.Context, stream string,
 ) (string, error) {
 	request := c.client.ManagementApi.V1AdminStreamStreamNameDelete(ctxt, stream)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.ManagementApi.V1AdminStreamStreamNameDeleteExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}

@@ -40,37 +40,48 @@ func TestPushSubscribe(t *testing.T) {
 	subjects0 := []string{fmt.Sprintf("%s.a", subjectBase), fmt.Sprintf("%s.b", subjectBase)}
 	subjectWildcard := fmt.Sprintf("%s.*", subjectBase)
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJSStreamParam{Name: stream0, Subjects: &subjects0}
-		_, err := ctrl.CreateStream(utCtxt, param)
+		rid, err := ctrl.CreateStream(reqCtxt, param)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJetStreamConsumerParam{
 			Name:          consumer0,
 			Mode:          "push",
 			MaxInflight:   2,
 			FilterSubject: api.PtrString(subjects0[0]),
 		}
-		_, err := ctrl.CreateConsumerForStream(utCtxt, stream0, param)
+		rid, err := ctrl.CreateConsumerForStream(reqCtxt, stream0, param)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		param := api.ManagementJetStreamConsumerParam{
 			Name:          consumerWildCard,
 			Mode:          "push",
 			MaxInflight:   2,
 			FilterSubject: api.PtrString(subjectWildcard),
 		}
-		_, err := ctrl.CreateConsumerForStream(utCtxt, stream0, param)
+		rid, err := ctrl.CreateConsumerForStream(reqCtxt, stream0, param)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 
 	// Case 1: subscribe for messages
 	msgChan1 := make(chan api.ApisAPIRestRespDataMessage, 2)
 	rdContext1, tdCtxtCancel1 := context.WithCancel(utCtxt)
 	go func() {
-		_, err := uut.PushSubscribe(
-			rdContext1, PushSubscribeParam{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(rdContext1, common.UseGivenRequestID{}, callID)
+		rid, err := uut.PushSubscribe(
+			reqCtxt, PushSubscribeParam{
 				Stream:         stream0,
 				Consumer:       consumer0,
 				SubjectFilter:  subjects0[0],
@@ -80,12 +91,16 @@ func TestPushSubscribe(t *testing.T) {
 			},
 		)
 		assert.True(strings.Contains(err.Error(), "context canceled"))
+		assert.Equal(callID, rid)
 	}()
 	// Verify messages are published
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		msg := uuid.New().String()
-		_, err := uut.Publish(utCtxt, subjects0[0], []byte(msg))
+		rid, err := uut.Publish(reqCtxt, subjects0[0], []byte(msg))
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		rdTimeout, lclCancel := context.WithCancel(utCtxt)
 		defer lclCancel()
 		select {
@@ -93,8 +108,10 @@ func TestPushSubscribe(t *testing.T) {
 			assert.True(ok)
 			assert.EqualValues(msg, string(rxMsg.B64Msg))
 			// ACK message
-			_, err := uut.SendACK(
-				utCtxt, MsgACKParam{
+			callID := uuid.New().String()
+			reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+			rid, err := uut.SendACK(
+				reqCtxt, MsgACKParam{
 					Stream:      stream0,
 					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumer0,
@@ -102,14 +119,17 @@ func TestPushSubscribe(t *testing.T) {
 				},
 			)
 			assert.Nil(err)
+			assert.Equal(callID, rid)
 		case <-rdTimeout.Done():
 			assert.False(true)
 		}
 	}
 	// Also clear the message for the wild card consumer
 	go func() {
-		_, err := uut.PushSubscribe(
-			rdContext1, PushSubscribeParam{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(rdContext1, common.UseGivenRequestID{}, callID)
+		rid, err := uut.PushSubscribe(
+			reqCtxt, PushSubscribeParam{
 				Stream:         stream0,
 				Consumer:       consumerWildCard,
 				SubjectFilter:  subjectWildcard,
@@ -119,6 +139,7 @@ func TestPushSubscribe(t *testing.T) {
 			},
 		)
 		assert.True(strings.Contains(err.Error(), "context canceled"))
+		assert.Equal(callID, rid)
 	}()
 	{
 		rdTimeout, lclCancel := context.WithCancel(utCtxt)
@@ -127,8 +148,10 @@ func TestPushSubscribe(t *testing.T) {
 		case rxMsg, ok := <-msgChan1:
 			assert.True(ok)
 			// ACK message
-			_, err := uut.SendACK(
-				utCtxt, MsgACKParam{
+			callID := uuid.New().String()
+			reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+			rid, err := uut.SendACK(
+				reqCtxt, MsgACKParam{
 					Stream:      stream0,
 					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumer0,
@@ -136,6 +159,7 @@ func TestPushSubscribe(t *testing.T) {
 				},
 			)
 			assert.Nil(err)
+			assert.Equal(callID, rid)
 		case <-rdTimeout.Done():
 			assert.False(true)
 		}
@@ -146,8 +170,10 @@ func TestPushSubscribe(t *testing.T) {
 	msgChan2 := make(chan api.ApisAPIRestRespDataMessage, 2)
 	rdContext2, tdCtxtCancel2 := context.WithCancel(utCtxt)
 	go func() {
-		_, err := uut.PushSubscribe(
-			rdContext2, PushSubscribeParam{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(rdContext2, common.UseGivenRequestID{}, callID)
+		rid, err := uut.PushSubscribe(
+			reqCtxt, PushSubscribeParam{
 				Stream:         stream0,
 				Consumer:       consumerWildCard,
 				SubjectFilter:  subjectWildcard,
@@ -157,12 +183,16 @@ func TestPushSubscribe(t *testing.T) {
 			},
 		)
 		assert.True(strings.Contains(err.Error(), "context canceled"))
+		assert.Equal(callID, rid)
 	}()
 	// Verify messages are published
 	{
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
 		msg1 := fmt.Sprintf("test-message-1.%s", uuid.New().String())
-		_, err := uut.Publish(utCtxt, subjects0[0], []byte(msg1))
+		rid, err := uut.Publish(reqCtxt, subjects0[0], []byte(msg1))
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		rdTimeout, lclCancel := context.WithCancel(utCtxt)
 		defer lclCancel()
 		select {
@@ -170,8 +200,10 @@ func TestPushSubscribe(t *testing.T) {
 			assert.True(ok)
 			assert.EqualValues(msg1, string(rxMsg.B64Msg))
 			// ACK message
-			_, err := uut.SendACK(
-				utCtxt, MsgACKParam{
+			callID := uuid.New().String()
+			reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+			rid, err := uut.SendACK(
+				reqCtxt, MsgACKParam{
 					Stream:      stream0,
 					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumerWildCard,
@@ -179,19 +211,25 @@ func TestPushSubscribe(t *testing.T) {
 				},
 			)
 			assert.Nil(err)
+			assert.Equal(callID, rid)
 		case <-rdTimeout.Done():
 			assert.False(true)
 		}
 		msg2 := fmt.Sprintf("test-message-2.%s", uuid.New().String())
-		_, err = uut.Publish(utCtxt, subjects0[1], []byte(msg2))
+		callID = uuid.New().String()
+		reqCtxt = context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err = uut.Publish(reqCtxt, subjects0[1], []byte(msg2))
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 		select {
 		case rxMsg, ok := <-msgChan2:
 			assert.True(ok)
 			assert.EqualValues(msg2, string(rxMsg.B64Msg))
 			// ACK message
-			_, err := uut.SendACK(
-				utCtxt, MsgACKParam{
+			callID := uuid.New().String()
+			reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+			rid, err := uut.SendACK(
+				reqCtxt, MsgACKParam{
 					Stream:      stream0,
 					StreamSeq:   rxMsg.Sequence.Stream,
 					Consumer:    consumerWildCard,
@@ -199,6 +237,7 @@ func TestPushSubscribe(t *testing.T) {
 				},
 			)
 			assert.Nil(err)
+			assert.Equal(callID, rid)
 		case <-rdTimeout.Done():
 			assert.False(true)
 		}
@@ -207,15 +246,24 @@ func TestPushSubscribe(t *testing.T) {
 
 	// Delete the consumers
 	{
-		_, err := ctrl.DeleteConsumerOnStream(utCtxt, stream0, consumer0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err := ctrl.DeleteConsumerOnStream(reqCtxt, stream0, consumer0)
 		assert.Nil(err)
-		_, err = ctrl.DeleteConsumerOnStream(utCtxt, stream0, consumerWildCard)
+		assert.Equal(callID, rid)
+		callID = uuid.New().String()
+		reqCtxt = context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err = ctrl.DeleteConsumerOnStream(reqCtxt, stream0, consumerWildCard)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 
 	// Delete the stream
 	{
-		_, err := ctrl.DeleteStream(utCtxt, stream0)
+		callID := uuid.New().String()
+		reqCtxt := context.WithValue(utCtxt, common.UseGivenRequestID{}, callID)
+		rid, err := ctrl.DeleteStream(reqCtxt, stream0)
 		assert.Nil(err)
+		assert.Equal(callID, rid)
 	}
 }

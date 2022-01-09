@@ -31,16 +31,14 @@ func (c *dataAPIWrapperImpl) SendACK(ctxt context.Context, params MsgACKParam) (
 	request := baseRequest.SequenceNum(
 		api.DataplaneAckSeqNum{Stream: params.StreamSeq, Consumer: params.ConsumerSeq},
 	)
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		request = request.HttpmqRequestID(*useID)
+	}
 
 	response, httpResp, err :=
 		c.client.DataplaneApi.V1DataStreamStreamNameConsumerConsumerNameAckPostExecute(request)
-	if err != nil {
-		return "", err
-	}
-
 	requestID := httpResp.Header.Get(common.RequestIDHeader)
-
-	if !response.Success {
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
 		return requestID, common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
@@ -67,15 +65,22 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 	// Because the push subscription is a expected to be a server-send-event stream, will
 	// have to directly operate the HTTP client
 
+	requestID := ""
+	additionalHeader := map[string]string{}
+	if useID := common.FetchUserProvidedRequestID(ctxt); useID != nil {
+		requestID = *useID
+		additionalHeader[common.RequestIDHeader] = *useID
+	}
+
 	if err := c.validate.Struct(&params); err != nil {
-		return "", err
+		return requestID, err
 	}
 
 	localBasePath, err := c.client.GetConfig().ServerURLWithContext(
 		ctxt, "DataplaneApiService.V1DataStreamStreamNameConsumerConsumerNameGet",
 	)
 	if err != nil {
-		return "", err
+		return requestID, err
 	}
 	clientCfg := c.client.GetConfig()
 	httpClient := clientCfg.HTTPClient
@@ -97,16 +102,16 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 		queryParams["delivery_group"] = []string{*params.DeliveryGroup}
 	}
 	request, err := c.client.PrepareRequest(
-		ctxt, subscribeURL, http.MethodGet, nil, nil, queryParams, nil, nil,
+		ctxt, subscribeURL, http.MethodGet, nil, additionalHeader, queryParams, nil, nil,
 	)
 	if err != nil {
-		return "", err
+		return requestID, err
 	}
 
 	// Make the request
 	response, err := httpClient.Do(request.WithContext(ctxt))
 	if err != nil {
-		return "", err
+		return requestID, err
 	}
 
 	// ----------------------------------------------------------------------------------------
@@ -118,7 +123,6 @@ func (c *dataAPIWrapperImpl) PushSubscribe(
 
 	var readErr error
 	readErr = nil
-	requestID := ""
 	for scanner.Scan() {
 		oneMessage := scanner.Text()
 		var parsed api.ApisAPIRestRespDataMessage

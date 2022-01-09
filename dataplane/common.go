@@ -109,13 +109,10 @@ func (c *dataAPIWrapperImpl) Ready(ctxt context.Context) error {
 	request := c.client.DataplaneApi.V1DataReadyGet(ctxt)
 
 	response, httpResp, err := c.client.DataplaneApi.V1DataReadyGetExecute(request)
-	if err != nil {
-		return err
-	}
-
-	if !response.Success {
+	requestID := httpResp.Header.Get(common.RequestIDHeader)
+	if err != nil || !response.Success {
 		errorDetail, _ := response.GetErrorOk()
-		return common.GenerateHttpmqError(response.RequestId, httpResp.StatusCode, errorDetail)
+		return common.GenerateHttpmqError(requestID, httpResp.StatusCode, errorDetail)
 	}
 
 	return nil
