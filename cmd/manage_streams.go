@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 
@@ -75,11 +74,11 @@ actionListStreams query the management API for list of all streams
 */
 func actionListStreams(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
-		reqID, streams, err := client.ListAllStreams(context.Background())
+		reqID, streams, err := client.ListAllStreams(ctxt)
 		if err != nil {
 			log.WithError(err).Errorf("Failed to list all streams")
 			return err
@@ -149,7 +148,7 @@ actionCreateStream create new JetStream stream through management API
 */
 func actionCreateStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -167,7 +166,7 @@ func actionCreateStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 		} else {
 			params.Subjects = &[]string{mgntBaseArgs.stream.createStream.Name}
 		}
-		reqID, err := client.CreateStream(context.Background(), params)
+		reqID, err := client.CreateStream(ctxt, params)
 		if err != nil {
 			log.WithError(err).Errorf(
 				"Failed to create new stream %s", mgntBaseArgs.stream.createStream.Name,
@@ -211,7 +210,7 @@ actionGetStream fetch stream info through management API
 */
 func actionGetStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -219,7 +218,7 @@ func actionGetStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 		if err := validate.Struct(&mgntBaseArgs.stream.getStream); err != nil {
 			return err
 		}
-		reqID, info, err := client.GetStream(context.Background(), mgntBaseArgs.stream.getStream.Name)
+		reqID, info, err := client.GetStream(ctxt, mgntBaseArgs.stream.getStream.Name)
 		if err != nil {
 			log.WithError(err).Errorf(
 				"Failed to read stream %s info", mgntBaseArgs.stream.getStream.Name,
@@ -273,7 +272,7 @@ actionDeleteStream delete one stream through management API
 */
 func actionDeleteStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -281,7 +280,7 @@ func actionDeleteStream(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 		if err := validate.Struct(&mgntBaseArgs.stream.deleteStream); err != nil {
 			return err
 		}
-		reqID, err := client.DeleteStream(context.Background(), mgntBaseArgs.stream.deleteStream.Name)
+		reqID, err := client.DeleteStream(ctxt, mgntBaseArgs.stream.deleteStream.Name)
 		if err != nil {
 			log.WithError(err).Errorf("Failed to delete stream %s", mgntBaseArgs.stream.deleteStream.Name)
 			return err
@@ -331,7 +330,7 @@ actionChangeSubjects change one stream's target subject through management API
 */
 func actionChangeSubjects(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -340,7 +339,7 @@ func actionChangeSubjects(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		reqID, err := client.ChangeStreamSubjects(
-			context.Background(),
+			ctxt,
 			mgntBaseArgs.stream.changeSubject.Name,
 			mgntBaseArgs.stream.changeSubject.Subjects.Value(),
 		)
@@ -399,7 +398,7 @@ actionChangeRetention change one stream's data retention through management API
 */
 func actionChangeRetention(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -411,7 +410,7 @@ func actionChangeRetention(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			MaxAge: api.PtrInt64(mgntBaseArgs.stream.changeRetention.MaxMsgAge.Nanoseconds()),
 		}
 		reqID, err := client.UpdateStreamLimits(
-			context.Background(), mgntBaseArgs.stream.changeRetention.Name, params,
+			ctxt, mgntBaseArgs.stream.changeRetention.Name, params,
 		)
 		if err != nil {
 			log.WithError(err).Errorf(

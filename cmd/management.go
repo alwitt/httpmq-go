@@ -6,6 +6,7 @@ import (
 	"github.com/apex/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/context"
 )
 
 /*
@@ -60,52 +61,56 @@ func GetManagementCLISubcmds(args *ManagementCLIArgs) []*cli.Command {
 defineClientManagementAPI creates a httpmq client for management API
 
  @param args *ManagementCLIArgs - where CLI arguments are stored
- @return the httpmq client
+ @return the httpmq client and operating context
 */
-func defineClientManagementAPI(args *ManagementCLIArgs) (management.MgmtAPIWrapper, error) {
+func defineClientManagementAPI(args *ManagementCLIArgs) (
+	management.MgmtAPIWrapper, context.Context, error,
+) {
 	validate := validator.New()
 	if err := args.initialSetup(validate); err != nil {
 		log.WithError(err).Errorf("Failed to parse command line arguments")
-		return nil, err
+		return nil, context.Background(), err
 	}
 	if err := validate.Struct(args); err != nil {
 		log.WithError(err).Errorf("Failed to parse command line arguments")
-		return nil, err
+		return nil, context.Background(), err
 	}
 
 	// Define the client
-	client, err := defineAPIClient(args.HTTP, args.isDebug)
+	client, callCtxt, err := defineAPIClient(args.HTTP, args.isDebug)
 	if err != nil {
 		log.WithError(err).Errorf("Faild to define httpmq API client")
 	}
 
 	wrapper := management.GetMgmtAPIWrapper(client)
-	return wrapper, err
+	return wrapper, callCtxt, err
 }
 
 /*
 defineClientDataplaneAPI creates a httpmq client for dataplane API
 
  @param args *DataplaneCLIArgs - where CLI arguments are stored
- @return the httpmq client
+ @return the httpmq client and operating context
 */
-func defineClientDataplaneAPI(args *DataplaneCLIArgs) (dataplane.DataAPIWrapper, error) {
+func defineClientDataplaneAPI(args *DataplaneCLIArgs) (
+	dataplane.DataAPIWrapper, context.Context, error,
+) {
 	validate := validator.New()
 	if err := args.initialSetup(validate); err != nil {
 		log.WithError(err).Errorf("Failed to parse command line arguments")
-		return nil, err
+		return nil, context.Background(), err
 	}
 	if err := validate.Struct(args); err != nil {
 		log.WithError(err).Errorf("Failed to parse command line arguments")
-		return nil, err
+		return nil, context.Background(), err
 	}
 
 	// Define the client
-	client, err := defineAPIClient(args.HTTP, args.isDebug)
+	client, callCtxt, err := defineAPIClient(args.HTTP, args.isDebug)
 	if err != nil {
 		log.WithError(err).Errorf("Faild to define httpmq API client")
 	}
 
 	wrapper := dataplane.GetDataAPIWrapper(client)
-	return wrapper, err
+	return wrapper, callCtxt, err
 }

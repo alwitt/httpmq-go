@@ -20,7 +20,7 @@ func main() {
 	}
 
 	app := &cli.App{
-		Version:     "v0.1.0",
+		Version:     "v0.2.0",
 		Usage:       "HTTP MQ demo application",
 		Description: "Demo application for trying out functionalities of httpmq",
 		Commands: []*cli.Command{

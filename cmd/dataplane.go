@@ -101,7 +101,7 @@ actionPublishMessage publish a message on a subject
 */
 func actionPublishMessage(args *DataplaneCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientDataplaneAPI(args)
+		client, ctxt, err := defineClientDataplaneAPI(args)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func actionPublishMessage(args *DataplaneCLIArgs) cli.ActionFunc {
 			return err
 		}
 		reqID, err := client.Publish(
-			context.Background(), args.publish.Subject, []byte(args.publish.Message),
+			ctxt, args.publish.Subject, []byte(args.publish.Message),
 		)
 		if err != nil {
 			log.WithError(err).Errorf("Failed to publish message on subject %s", args.publish.Subject)
@@ -192,7 +192,7 @@ actionSubscribe subscribe for mesages
 */
 func actionSubscribe(args *DataplaneCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientDataplaneAPI(args)
+		client, ctxt, err := defineClientDataplaneAPI(args)
 		if err != nil {
 			return err
 		}
@@ -202,7 +202,7 @@ func actionSubscribe(args *DataplaneCLIArgs) cli.ActionFunc {
 		}
 
 		// Subscribe support
-		rxContext, cancel := context.WithCancel(context.Background())
+		rxContext, cancel := context.WithCancel(ctxt)
 		defer cancel()
 		wg := sync.WaitGroup{}
 		defer wg.Wait()

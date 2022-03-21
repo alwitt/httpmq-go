@@ -15,6 +15,7 @@ import (
 	apexJSON "github.com/apex/log/handlers/json"
 	"github.com/go-playground/validator/v10"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/context"
 	"golang.org/x/net/http2"
 )
 
@@ -32,6 +33,8 @@ type httpClientArgs struct {
 	ServerURL string `validate:"required,url"`
 	// CustomCA if provided, the CA to use
 	CustomCA string `validate:"omitempty,file"`
+	// AccessToken if provided, will be bearer access token used when calling the API
+	BearerAccessToken string
 }
 
 // CommonCLIArgs cli arguments needed for operating against all APIs
@@ -161,6 +164,16 @@ func getCommonCLIFlags(args *CommonCLIArgs) []cli.Flag {
 			Destination: &args.HTTP.CustomCA,
 			Required:    false,
 		},
+		&cli.StringFlag{
+			Name:        "access-token",
+			Usage:       "Bearer access token used for authentication",
+			Aliases:     []string{"at"},
+			EnvVars:     []string{"HTTP_BEARER_ACCESS_TOKEN"},
+			Value:       "",
+			DefaultText: "",
+			Destination: &args.HTTP.BearerAccessToken,
+			Required:    false,
+		},
 	}
 }
 
@@ -169,21 +182,21 @@ defineAPIClient define an httpmq API client
 
  @param config httpClientArgs - HTTP client config
  @param debug bool - whether to operate the API client in debug mode
- @return the httpmq API client
+ @return the httpmq API client and operating context
 */
-func defineAPIClient(config httpClientArgs, debug bool) (*api.APIClient, error) {
+func defineAPIClient(config httpClientArgs, debug bool) (*api.APIClient, context.Context, error) {
 	httpClient := http.Client{}
 	// Define the TLS settings if custom CA was provided
 	if len(config.CustomCA) > 0 {
 		caCert, err := ioutil.ReadFile(config.CustomCA)
 		if err != nil {
 			log.WithError(err).Errorf("Unable to read %s", config.CustomCA)
-			return nil, err
+			return nil, context.Background(), err
 		}
 		w, err := os.OpenFile("/tmp/tls-secrets.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 		if err != nil {
 			log.WithError(err).Error("Failed to open /tmp/tls-secrets.txt")
-			return nil, err
+			return nil, context.Background(), err
 		}
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
@@ -203,5 +216,15 @@ func defineAPIClient(config httpClientArgs, debug bool) (*api.APIClient, error) 
 		}
 	}
 
-	return common.DefineAPIClient(config.ServerURL, &httpClient, api.PtrString("httpmq-demo"), debug)
+	callContext := context.Background()
+	if config.BearerAccessToken != "" {
+		callContext = context.WithValue(
+			context.Background(), api.ContextAccessToken, config.BearerAccessToken,
+		)
+	}
+
+	client, err := common.DefineAPIClient(
+		config.ServerURL, &httpClient, api.PtrString("httpmq-demo"), debug,
+	)
+	return client, callContext, err
 }

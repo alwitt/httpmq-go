@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 
 	"github.com/alwitt/httpmq-go/api"
@@ -77,12 +76,12 @@ actionListStreams query the management API for list of all consumer on a stream
 */
 func actionListConsumers(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
 		reqID, consumer, err := client.ListAllConsumerOfStream(
-			context.Background(), mgntBaseArgs.consumer.stream,
+			ctxt, mgntBaseArgs.consumer.stream,
 		)
 		if err != nil {
 			log.WithError(err).Errorf("Failed to list all consumers")
@@ -136,7 +135,7 @@ actionGetConsumer fetch consumer info through management API
 */
 func actionGetConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -145,7 +144,7 @@ func actionGetConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		reqID, info, err := client.GetConsumerOfStream(
-			context.Background(), mgntBaseArgs.consumer.stream, mgntBaseArgs.consumer.getConsumer.Name,
+			ctxt, mgntBaseArgs.consumer.stream, mgntBaseArgs.consumer.getConsumer.Name,
 		)
 		if err != nil {
 			log.WithError(err).Errorf(
@@ -227,7 +226,7 @@ actionCreateConsumer create new consumer through management API
 */
 func actionCreateConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -245,7 +244,7 @@ func actionCreateConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			params.DeliveryGroup = api.PtrString(mgntBaseArgs.consumer.createConsumer.DeliveryGroup)
 		}
 		reqID, err := client.CreateConsumerForStream(
-			context.Background(), mgntBaseArgs.consumer.stream, params,
+			ctxt, mgntBaseArgs.consumer.stream, params,
 		)
 		if err != nil {
 			log.WithError(err).Errorf(
@@ -295,7 +294,7 @@ actionDeleteConsumer delete consumer info through management API
 */
 func actionDeleteConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		client, err := defineClientManagementAPI(mgntBaseArgs)
+		client, ctxt, err := defineClientManagementAPI(mgntBaseArgs)
 		if err != nil {
 			return err
 		}
@@ -304,7 +303,7 @@ func actionDeleteConsumer(mgntBaseArgs *ManagementCLIArgs) cli.ActionFunc {
 			return err
 		}
 		reqID, err := client.DeleteConsumerOnStream(
-			context.Background(), mgntBaseArgs.consumer.stream, mgntBaseArgs.consumer.deleteConsumer.Name,
+			ctxt, mgntBaseArgs.consumer.stream, mgntBaseArgs.consumer.deleteConsumer.Name,
 		)
 		if err != nil {
 			log.WithError(err).Errorf(
