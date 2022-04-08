@@ -155,6 +155,7 @@ OPTIONS:
    --json-log, -j                           Whether to log in JSON format (default: false) [$LOG_AS_JSON]
    --log-level value, -l value              Logging level: [debug info warn error] (default: info) [$LOG_LEVEL]
    --custom-ca-file value, --ccf value      Custom CA file to use with HTTP client [$HTTP_CUSTOM_CA_FILE]
+   --access-token value, --at value         Bearer access token used for authentication [$HTTP_BEARER_ACCESS_TOKEN]
    --management-server-url value, -s value  Management server URL (default: http://127.0.0.1:4000) [$MANAGEMENT_SERVER_URL]
    --help, -h                               show help (default: false)
 ```
@@ -226,6 +227,7 @@ OPTIONS:
    --json-log, -j                          Whether to log in JSON format (default: false) [$LOG_AS_JSON]
    --log-level value, -l value             Logging level: [debug info warn error] (default: info) [$LOG_LEVEL]
    --custom-ca-file value, --ccf value     Custom CA file to use with HTTP client [$HTTP_CUSTOM_CA_FILE]
+   --access-token value, --at value        Bearer access token used for authentication [$HTTP_BEARER_ACCESS_TOKEN]
    --dataplane-server-url value, -s value  Dataplane server URL (default: http://127.0.0.1:4001) [$DATAPLANE_SERVER_URL]
    --help, -h                              show help (default: false)
 ```
