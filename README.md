@@ -2,7 +2,7 @@
 
 Golang client for [httpmq](https://github.com/alwitt/httpmq)
 
-[![MIT][License-Image]][License-Url] [![Go Report Card][ReportCard-Image]][ReportCard-Url] ![CICD workflow](https://github.com/alwitt/httpmq-go/actions/workflows/cicd.yaml/badge.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_shield)
+[![MIT][License-Image]][License-Url] [![Go Report Card][ReportCard-Image]][ReportCard-Url] ![CICD workflow](https://github.com/alwitt/httpmq-go/actions/workflows/cicd.yaml/badge.svg)
 
 [License-Url]: https://mit-license.org/
 [License-Image]: https://img.shields.io/badge/License-MIT-blue.svg
@@ -15,7 +15,6 @@ Golang client for [httpmq](https://github.com/alwitt/httpmq)
 - [2. Installation](#2-installation)
 - [3. Examples](#3-examples)
 - [4. Local Development](#4-local-development)
-- [5. License](#5-license)
 
 ---
 
@@ -231,9 +230,3 @@ OPTIONS:
    --dataplane-server-url value, -s value  Dataplane server URL (default: http://127.0.0.1:4001) [$DATAPLANE_SERVER_URL]
    --help, -h                              show help (default: false)
 ```
-
-# [5. License](#table-of-content)
-
-Unless otherwise noted, the httpmq-go source files are distributed under the MIT license found in the LICENSE file.
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Falwitt%2Fhttpmq-go?ref=badge_large)
