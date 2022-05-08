@@ -6,7 +6,7 @@ networks:
 
 services:
   dev-nats:
-    image: nats:2.6.2
+    image: nats:2.8.2
     hostname: dev-nats
     expose:
       - 4222
@@ -16,7 +16,7 @@ services:
       - ./docker/test_nats.conf:/nats-server.conf
 
   httpmq-mgmt:
-    image: alwitt/httpmq:0.3.2-rc.1
+    image: alwitt/httpmq:0.4.0
     hostname: management
     command:
       - management
@@ -33,7 +33,7 @@ services:
       - ./docker/test_httpmq.yaml:/httpmq.yaml
 
   httpmq-data:
-    image: alwitt/httpmq:0.3.2-rc.1
+    image: alwitt/httpmq:0.4.0
     hostname: dataplane
     command:
       - dataplane

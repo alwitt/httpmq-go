@@ -39,7 +39,7 @@ GenerateHttpmqError generate a HttpmqAPIError object from the error response fro
  @param err *api.ApisErrorDetail - the error message
  @return a HttpmqAPIError instance
 */
-func GenerateHttpmqError(reqID string, statusCode int, err *api.ApisErrorDetail) HttpmqAPIError {
+func GenerateHttpmqError(reqID string, statusCode int, err *api.GoutilsErrorDetail) HttpmqAPIError {
 	var msg, detail *string
 	if err != nil {
 		m, _ := err.GetMessageOk()

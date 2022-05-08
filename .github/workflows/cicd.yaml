@@ -39,19 +39,19 @@ jobs:
 
     services:
       dev-nats:
-        image: alwitt/nats-js:2.6.2-alpine
+        image: alwitt/nats-js:2.8.2-alpine
         ports:
           - 4222:4222
         options: --hostname dev-nats
       httpmq-mgmt:
-        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.3.0-management
+        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.4.0-management
         ports:
           - 3000:3000
         env:
           LOG_LEVEL: info
           CONFIG_FILE: /httpmq.yaml
       httpmq-data:
-        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.3.0-dataplane
+        image: alwitt/cicd-support:httpmq-go.cicd.httpmq-0.4.0-dataplane
         ports:
           - 3001:3000
         env:
