@@ -13,3 +13,6 @@ dataplane:
     server_config:
       listen_on: 0.0.0.0
       listen_port: 3000
+      read_timeout_sec: 60
+      write_timeout_sec: 0
+      idle_timeout_sec: 0
