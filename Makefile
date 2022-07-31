@@ -17,7 +17,7 @@ compose: clean .prepare ## Run docker-compose to create the DEV ENV
 
 .PHONY: test
 test: .prepare ## Run unittests
-	@go test --count 1 -timeout 30s -short ./...
+	@go test --count 1 -v -timeout 30s -short ./...
 
 .PHONY: build
 build: lint ## Build the test application

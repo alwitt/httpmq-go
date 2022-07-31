@@ -16,7 +16,7 @@ services:
       - ./docker/test_nats.conf:/nats-server.conf
 
   httpmq-mgmt:
-    image: alwitt/httpmq:0.4.1-rc.2
+    image: alwitt/httpmq:0.4.1-rc.3
     hostname: management
     command:
       - management
@@ -33,7 +33,7 @@ services:
       - ./docker/test_httpmq.yaml:/httpmq.yaml
 
   httpmq-data:
-    image: alwitt/httpmq:0.4.1-rc.2
+    image: alwitt/httpmq:0.4.1-rc.3
     hostname: dataplane
     command:
       - dataplane
