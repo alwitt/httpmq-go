@@ -12,7 +12,7 @@ jobs:
       IMAGE_REPO: alwitt/cicd-support
       HTTPMQ_IMAGE_REPO: alwitt/httpmq
       HTTPMQ_IMAGE_NAME: httpmq
-      HTTPMQ_IMAGE_TAG: "0.4.1-rc.3"
+      HTTPMQ_IMAGE_TAG: "0.4.1-rc.5"
 
     steps:
       - uses: actions/checkout@v2
